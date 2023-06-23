@@ -1,0 +1,134 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  h2.section-title {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  .section-padding {
+    padding: 80px 0;
+  }
+  
+  .row::after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+  
+  /* About Me Section */
+  .about-content {
+    margin-bottom: 40px;
+  }
+  
+  .info-list {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .info-list li {
+    margin-bottom: 10px;
+  }
+  
+  /* Skills Section */
+  .skills .skill-item {
+    margin-bottom: 20px;
+  }
+  
+  .progress {
+    height: 20px;
+    background-color: #f1f1f1;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  
+  .progress-bar {
+    height: 100%;
+    background-color: #4caf50;
+  }
+  
+  /* Testimonials Section */
+  .testimonial-item {
+    padding: 30px;
+    background-color: #f1f1f1;
+    margin-bottom: 30px;
+  }
+  
+  .testimony-meta {
+    font-style: italic;
+  }
+  
+  /* Contact Section */
+  form#contact-form input,
+  form#contact-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: vertical;
+  }
+  
+  form#contact-form textarea {
+    height: 150px;
+  }
+  
+  .btn-primary {
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+  
+  .btn-primary:hover {
+    background-color: #45a049;
+  }
+  
+  .contact-info {
+    background-color: #f1f1f1;
+    padding: 20px;
+  }
+  
+  .contact-info p {
+    margin-bottom: 10px;
+  }
+  
+  /* Footer Section */
+  footer {
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  /* Media Queries */
+  @media (max-width: 768px) {
+    h2.section-title {
+      font-size: 24px;
+    }
+    
+    .contact {
+      text-align: center;
+    }
+    
+    .contact form {
+      text-align: left;
+    }
+    
+    .col-lg-6, .col-md-6, .col-xs-12 {
+      width: 100%;
+    }
+  }
+  
