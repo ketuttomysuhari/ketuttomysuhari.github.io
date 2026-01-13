@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>VR Lobby — Dr. Ir. Ketut Tomy Suhari</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="WebVR lobby: CV, Projects, Companies, Collaboration" />
+
+  <!-- A-Frame -->
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+
+  <!-- Site styles (for overlay UI consistency) -->
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <script defer src="assets/js/main.js"></script>
+
+  <style>
+    /* Top overlay UI */
+    .overlay{
+      position:fixed; left:12px; right:12px; top:12px;
+      z-index:1000;
+      display:flex; gap:10px; flex-wrap:wrap;
+      align-items:center; justify-content:space-between;
+      padding:12px 14px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(10,16,30,.55);
+      backdrop-filter: blur(10px);
+      border-radius:14px;
+      color:#e8eefc;
+      font-weight:700;
+    }
+    .overlay .small{font-weight:600; opacity:.85}
+
+    .hint{
+      position:fixed; left:12px; bottom:12px;
+      z-index:1000; max-width:560px;
+      padding:10px 12px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(10,16,30,.45);
+      backdrop-filter: blur(10px);
+      border-radius:14px;
+      color:#a9b6d3;
+      font-size:13px; line-height:1.5;
+    }
+    @media (max-width:560px){
+      .hint{max-width:calc(100% - 24px)}
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Overlay controls -->
+  <div class="overlay">
+    <div>
+      VR Lobby <span class="badge" style="margin-left:10px">A-Frame</span>
+      <div class="small">Select a portal to open each room.</div>
+    </div>
+    <div class="btns">
+      <a class="btn" href="index.html">Exit to Home</a>
+      <a class="btn primary" href="assets/cv/CV_KetutTomySuhari.pdf" download>Download CV</a>
+    </div>
+  </div>
+
+  <div class="hint">
+    Controls: drag to look around • click/tap a portal to open a room.
+    On VR headsets, use the gaze cursor. If VR feels heavy on mobile,
+    use the normal pages from the Home menu.
+  </div>
+
+  <script>
+    // Simple navigation component for portals
+    AFRAME.registerComponent('go-to', {
+      schema: { url: { type: 'string' } },
+      init: function () {
+        this.el.addEventListener('click', () => {
+          if (this.data.url) window.location.href = this.data.url;
+        });
+      }
+    });
+  </script>
+
+  <a-scene renderer="colorManagement: true" vr-mode-ui="enabled: true">
+    <!-- Assets -->
+    <a-assets>
+      <img id="floorTex" src="https://cdn.aframe.io/a-painter/images/floor.jpg" crossorigin="anonymous" />
+      <img id="skyTex" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/sechelt.jpg" crossorigin="anonymous" />
+    </a-assets>
+
+    <!-- Camera & cursor -->
+    <a-entity position="0 1.6 4">
+      <a-camera>
+        <a-cursor
+          raycaster="objects: .clickable"
+          fuse="false"
+          material="color:#ffffff; shader:flat; opacity:0.9"
+          geometry="primitive:ring; radiusInner:0.01; radiusOuter:0.016">
+        </a-cursor>
+      </a-camera>
+    </a-entity>
+
+    <!-- Environment -->
+    <a-sky src="#skyTex" rotation="0 -90 0"></a-sky>
+
+    <a-plane position="0 0 0" rotation="-90 0 0" width="30" height="30"
+      material="src:#floorTex; repeat:10 10; roughness:1; metalness:0">
+    </a-plane>
+
+    <!-- Center marker -->
+    <a-ring position="0 0.01 0" rotation="-90 0 0" radius-inner="1.4" radius-outer="1.55"
+      material="color:#4da3ff; opacity:0.5; shader:flat">
+    </a-ring>
+
+    <!-- Title -->
+    <a-entity position="0 2.2 0">
+      <a-text value="VR Lobby" align="center" color="#E8EEFC" width="6"></a-text>
+      <a-text value="Dr. Ir. Ketut Tomy Suhari" align="center" color="#A9B6D3" position="0 -0.35 0" width="7"></a-text>
+      <a-text value="Select a room" align="center" color="#A9B6D3" position="0 -0.65 0" width="6"></a-text>
+    </a-entity>
+
+    <!-- PORTALS -->
+
+    <!-- CV ROOM -->
+    <a-entity position="-6 0 0">
+      <a-box class="clickable" go-to="url: cv.html"
+        position="0 1 0" depth="0.8" height="2.2" width="3"
+        material="color:#4da3ff; opacity:0.92; metalness:0.1; roughness:0.4"></a-box>
+      <a-text value="CV ROOM" align="center" position="0 2.5 0" width="6" color="#E8EEFC"></a-text>
+      <a-text value="Open & download CV" align="center" position="0 2.2 0" width="6" color="#A9B6D3"></a-text>
+    </a-entity>
+
+    <!-- PROJECTS -->
+    <a-entity position="-2 0 -6">
+      <a-box class="clickable" go-to="url: projects.html"
+        position="0 1 0" depth="0.8" height="2.2" width="3"
+        material="color:#6ee7b7; opacity:0.92; metalness:0.1; roughness:0.4"></a-box>
+      <a-text value="PROJECTS" align="center" position="0 2.5 0" width="6" color="#E8EEFC"></a-text>
+      <a-text value="Selected works" align="center" position="0 2.2 0" width="6" color="#A9B6D3"></a-text>
+    </a-entity>
+
+    <!-- COMPANIES -->
+    <a-entity position="2 0 -6">
+      <a-box class="clickable" go-to="url: companies.html"
+        position="0 1 0" depth="0.8" height="2.2" width="3"
+        material="color:#ffd166; opacity:0.92; metalness:0.1; roughness:0.4"></a-box>
+      <a-text value="COMPANIES" align="center" position="0 2.5 0" width="6" color="#04101f"></a-text>
+      <a-text value="Two entities" align="center" position="0 2.2 0" width="6" color="#1c2a46"></a-text>
+    </a-entity>
+
+    <!-- COLLABORATION -->
+    <a-entity position="6 0 0">
+      <a-box class="clickable" go-to="url: collaboration.html"
+        position="0 1 0" depth="0.8" height="2.2" width="3"
+        material="color:#b794f4; opacity:0.92; metalness:0.1; roughness:0.4"></a-box>
+      <a-text value="COLLAB" align="center" position="0 2.5 0" width="6" color="#E8EEFC"></a-text>
+      <a-text value="Work with me" align="center" position="0 2.2 0" width="6" color="#A9B6D3"></a-text>
+    </a-entity>
+
+    <!-- Subtle walls for depth -->
+    <a-box position="0 1 -12" width="26" height="3" depth="0.6" material="color:#0b1220; opacity:0.35"></a-box>
+    <a-box position="-12 1 0" width="0.6" height="3" depth="26" material="color:#0b1220; opacity:0.35"></a-box>
+    <a-box position="12 1 0" width="0.6" height="3" depth="26" material="color:#0b1220; opacity:0.35"></a-box>
+
+    <!-- Lighting -->
+    <a-entity light="type:ambient; intensity:0.6; color:#ffffff"></a-entity>
+    <a-entity light="type:directional; intensity:0.8" position="3 6 2"></a-entity>
+  </a-scene>
+</body>
+</html>
