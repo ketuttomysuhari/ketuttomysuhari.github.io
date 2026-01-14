@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dr. Ir. Ketut Tomy Suhari</title>
 
-  <!-- Styles -->
   <link rel="stylesheet" href="assets/css/style.css" />
   <script defer src="assets/js/main.js"></script>
 
@@ -18,8 +17,8 @@
     <!-- NAVIGATION -->
     <div class="nav">
       <div class="brand">
-        <div style="width:12px;height:12px;border-radius:4px;background:linear-gradient(135deg, rgba(77,163,255,1), rgba(110,231,183,1));"></div>
-        <div>Ketut Tomy Suhari</div>
+        <div class="brand-dot" aria-hidden="true"></div>
+        <div class="brand-name">Ketut Tomy Suhari</div>
         <span class="badge">Academic • Professional • Founder</span>
       </div>
 
@@ -29,15 +28,20 @@
         <a class="link" href="projects.html">Projects</a>
         <a class="link" href="companies.html">Companies</a>
         <a class="link" href="collaboration.html">Collaboration</a>
-        <!-- VR Lobby will be added later -->
+        <a class="link" href="vr.html">VR Lobby</a>
       </div>
     </div>
 
     <!-- HERO SECTION -->
-    <div class="hero">
+    <div class="hero hero-bright">
 
       <!-- LEFT COLUMN -->
       <div>
+        <div class="pill">
+          <span class="pill-dot"></span>
+          <span>GeoBIM • Digital Twin • 3D Web GIS</span>
+        </div>
+
         <h1 class="h1">
           Dr. Ir. Ketut Tomy Suhari, S.T., M.T., IRSurv.
         </h1>
@@ -49,21 +53,14 @@
 
         <p class="sub">
           Founder of <b>PT. Amerta Geospasial Indonesia</b> and Head of
-          <b>KJSB Ketut Tomy Suhari</b>, with experience bridging academic research and
-          professional geospatial implementation.
+          <b>KJSB Ketut Tomy Suhari</b>, bridging academic research and professional geospatial implementation.
         </p>
 
         <div class="btns">
-          <a class="btn primary" href="assets/cv/CV_KetutTomySuhari.pdf" download>
-            Download CV (PDF)
-          </a>
+          <a class="btn primary" href="assets/cv/CV_KetutTomySuhari.pdf" download>Download CV (PDF)</a>
           <a class="btn" href="cv.html">Open CV</a>
-          <a class="btn ghost" href="vr.html" onclick="alert('VR Lobby (vr.html) will be added after the main site is finalized.'); return false;">
-            Enter VR Lobby
-          </a>
-          <a class="btn" href="collaboration.html">
-            Collaboration
-          </a>
+          <a class="btn" href="vr.html">Enter VR Lobby</a>
+          <a class="btn ghost" href="collaboration.html">Collaboration</a>
         </div>
 
         <!-- OVERVIEW -->
@@ -75,7 +72,7 @@
               <div class="label">Research Focus</div>
               <div class="value">GeoBIM • Digital Twin • 3D Web GIS</div>
               <div class="small">
-                Integration of 2D–3D geospatial data, semantic queries, and real-time visualization
+                Integration of 2D–3D geospatial data, semantic queries, and real-time visualization.
               </div>
             </div>
 
@@ -83,7 +80,7 @@
               <div class="label">Professional Practice</div>
               <div class="value">Surveying • Cadastre • Geospatial Services</div>
               <div class="small">
-                End-to-end workflow: acquisition, quality control, and delivery
+                End-to-end workflow: acquisition, quality control, and delivery.
               </div>
             </div>
 
@@ -91,7 +88,7 @@
               <div class="label">Open to Collaboration</div>
               <div class="value">Joint research & implementation</div>
               <div class="small">
-                Grants, joint publications, and digital twin deployments
+                Grants, joint publications, and digital twin deployments.
               </div>
             </div>
           </div>
@@ -100,12 +97,11 @@
         <!-- QUICK NAV -->
         <div class="section">
           <h2>Quick Navigation</h2>
-          <p>
-            This 2D landing page provides fast access to my profile and work.
-            A VR Lobby will be added later as an optional immersive showcase.
+          <p class="sub" style="margin-bottom:10px">
+            Fast access via standard pages. VR Lobby is an optional immersive showcase.
           </p>
 
-          <div class="btns" style="margin-top:10px">
+          <div class="btns">
             <a class="btn" href="projects.html">View Projects</a>
             <a class="btn" href="companies.html">View Companies</a>
             <a class="btn" href="collaboration.html">Collaboration</a>
@@ -115,91 +111,102 @@
         <hr class="sep" />
 
         <div class="notice">
-          <b>Status:</b> Main landing page (index.html) is finalized.
-          Next step: activate VR Lobby (<code>vr.html</code>) after content validation.
+          <b>Note:</b> Replace the profile photo by uploading <code>assets/img/profile.jpg</code>.
+          Company logos can be uploaded later to <code>assets/img/</code>.
         </div>
       </div>
 
       <!-- RIGHT COLUMN -->
-      <div class="card">
-        <h2 style="margin:0 0 10px">Contact & Academic Profiles</h2>
+      <div class="stack">
 
-        <div class="list">
-
-          <div class="item">
-            <div>
-              <h3>Email</h3>
-              <p class="meta">Primary contact</p>
+        <!-- PROFILE CARD -->
+        <div class="card profile-card">
+          <div class="profile-top">
+            <div class="avatar">
+              <!-- Upload your photo later to assets/img/profile.jpg -->
+              <img src="assets/img/profile.jpg" alt="Profile photo of Dr. Ketut Tomy Suhari"
+                   onerror="this.style.display='none'; this.parentElement.classList.add('avatar-placeholder');" />
+              <div class="avatar-fallback">
+                <div class="avatar-initials">KTS</div>
+                <div class="avatar-note">Upload: assets/img/profile.jpg</div>
+              </div>
             </div>
-            <button class="btn" data-copy-email="ketut.tomy.suhari@gmail.com">
-              Copy email
-            </button>
+
+            <div class="profile-meta">
+              <div class="profile-name">Dr. Ir. Ketut Tomy Suhari</div>
+              <div class="profile-role">Lecturer • Licensed Surveyor • Founder</div>
+              <div class="profile-affil">Institut Teknologi Nasional Malang</div>
+            </div>
           </div>
 
-          <div class="item">
-            <div>
-              <h3>WhatsApp</h3>
-              <p class="meta">Direct communication</p>
-            </div>
-            <a class="btn" href="https://wa.me/6281236828055" target="_blank" rel="noreferrer">
-              Open
-            </a>
+          <div class="profile-actions">
+            <a class="btn primary" href="assets/cv/CV_KetutTomySuhari.pdf" download>Download CV</a>
+            <a class="btn" href="vr.html">VR Lobby</a>
           </div>
-
-          <div class="item">
-            <div>
-              <h3>Google Scholar</h3>
-              <p class="meta">Publications & citations</p>
-            </div>
-            <a class="btn" href="https://scholar.google.com/citations?user=5md4iHUAAAAJ&hl=en&oi=ao" target="_blank">
-              Open
-            </a>
-          </div>
-
-          <div class="item">
-            <div>
-              <h3>ORCID</h3>
-              <p class="meta">Researcher identifier</p>
-            </div>
-            <a class="btn" href="https://orcid.org/0000-0002-1416-1302" target="_blank">
-              Open
-            </a>
-          </div>
-
-          <div class="item">
-            <div>
-              <h3>Scopus</h3>
-              <p class="meta">Author profile</p>
-            </div>
-            <a class="btn" href="https://www.scopus.com/authid/detail.uri?authorId=57196485539" target="_blank">
-              Open
-            </a>
-          </div>
-
         </div>
 
-        <div class="section">
-          <h2>Affiliation & Roles</h2>
-          <p class="small">
-            Lecturer at Institut Teknologi Nasional Malang. <br />
-            Founder of PT. Amerta Geospasial Indonesia. <br />
-            Head of KJSB Ketut Tomy Suhari.
-          </p>
-        </div>
+        <!-- CONTACT & PROFILES -->
+        <div class="card">
+          <h2 style="margin:0 0 10px">Contact & Academic Profiles</h2>
 
-        <div class="section">
-          <h2>Profile Photo</h2>
-          <p class="small">
-            Profile photo will be added after upload.
-          </p>
+          <div class="list">
+            <div class="item">
+              <div>
+                <h3>Email</h3>
+                <p class="meta">Primary contact</p>
+              </div>
+              <button class="btn" data-copy-email="ketut.tomy.suhari@gmail.com">Copy email</button>
+            </div>
+
+            <div class="item">
+              <div>
+                <h3>WhatsApp</h3>
+                <p class="meta">Direct communication</p>
+              </div>
+              <a class="btn" href="https://wa.me/6281236828055" target="_blank" rel="noreferrer">Open</a>
+            </div>
+
+            <div class="item">
+              <div>
+                <h3>Google Scholar</h3>
+                <p class="meta">Publications & citations</p>
+              </div>
+              <a class="btn" href="https://scholar.google.com/citations?user=5md4iHUAAAAJ&hl=en&oi=ao" target="_blank" rel="noreferrer">Open</a>
+            </div>
+
+            <div class="item">
+              <div>
+                <h3>ORCID</h3>
+                <p class="meta">Researcher identifier</p>
+              </div>
+              <a class="btn" href="https://orcid.org/0000-0002-1416-1302" target="_blank" rel="noreferrer">Open</a>
+            </div>
+
+            <div class="item">
+              <div>
+                <h3>Scopus</h3>
+                <p class="meta">Author profile</p>
+              </div>
+              <a class="btn" href="https://www.scopus.com/authid/detail.uri?authorId=57196485539" target="_blank" rel="noreferrer">Open</a>
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>Affiliation & Roles</h2>
+            <p class="small">
+              Lecturer at Institut Teknologi Nasional Malang. <br />
+              Founder of PT. Amerta Geospasial Indonesia. <br />
+              Head of KJSB Ketut Tomy Suhari.
+            </p>
+          </div>
         </div>
       </div>
+
     </div>
 
     <!-- FOOTER -->
     <div class="footer">
       <div>© <span id="year"></span> Dr. Ir. Ketut Tomy Suhari</div>
-      <div class="small">Personal landing page • VR lobby will be added next</div>
     </div>
 
   </div>
