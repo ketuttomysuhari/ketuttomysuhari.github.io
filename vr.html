@@ -1,3 +1,4 @@
+```html
 <!doctype html>
 <html lang="en">
 <head>
@@ -76,13 +77,99 @@
         });
       }
     });
+
+    /**
+     * time-lighting
+     * - Follows user local time: daytime bright, nighttime dim
+     * - Smoothly transitions ambient/directional intensities
+     * - Optionally switches sky texture between day/night
+     */
+    AFRAME.registerComponent('time-lighting', {
+      schema: {
+        updateEveryMs: { type: 'int', default: 5000 },
+        smooth: { type: 'number', default: 0.03 },
+        dayStart: { type: 'number', default: 6.0 },
+        nightStart: { type: 'number', default: 18.0 },
+        switchSky: { type: 'boolean', default: true },
+        skyDay: { type: 'string', default: '#skyDay' },
+        skyNight: { type: 'string', default: '#skyNight' }
+      },
+
+      init: function () {
+        this.lastUpdate = 0;
+        this.targetDayFactor = 1;   // 0..1 (night..day)
+        this.currentDayFactor = 1;
+
+        this.ambient = document.querySelector('#lightAmbient');
+        this.sun = document.querySelector('#lightSun');
+        this.sky = document.querySelector('#sky');
+
+        this.computeTarget();
+        this.currentDayFactor = this.targetDayFactor;
+        this.applyNow();
+      },
+
+      computeTarget: function () {
+        const now = new Date();
+        const h = now.getHours() + now.getMinutes() / 60;
+
+        const dayStart = this.data.dayStart;
+        const nightStart = this.data.nightStart;
+
+        let f = 0;
+        if (h >= dayStart && h < nightStart) {
+          const t = (h - dayStart) / (nightStart - dayStart);
+          f = Math.sin(t * Math.PI); // sunrise->midday->sunset
+        } else {
+          f = 0;
+        }
+
+        // Keep a minimal night light so portals remain visible
+        const minNight = 0.08; // set to 0.02 for darker nights
+        this.targetDayFactor = minNight + (1 - minNight) * f;
+
+        // Optional sky switch
+        if (this.data.switchSky && this.sky) {
+          const isDay = (h >= dayStart && h < nightStart);
+          const desired = isDay ? this.data.skyDay : this.data.skyNight;
+          if (this.sky.getAttribute('src') !== desired) {
+            this.sky.setAttribute('src', desired);
+          }
+        }
+      },
+
+      applyNow: function () {
+        const day = this.currentDayFactor;
+
+        // Map dayFactor to light intensities
+        const ambientIntensity = 0.15 + 0.75 * day; // 0.15..0.9
+        const sunIntensity = 0.05 + 1.15 * day;     // 0.05..1.2
+
+        if (this.ambient) this.ambient.setAttribute('light', 'intensity', ambientIntensity);
+        if (this.sun) this.sun.setAttribute('light', 'intensity', sunIntensity);
+      },
+
+      tick: function (time) {
+        if (time - this.lastUpdate > this.data.updateEveryMs) {
+          this.computeTarget();
+          this.lastUpdate = time;
+        }
+
+        // Smooth transition
+        const s = this.data.smooth;
+        this.currentDayFactor += (this.targetDayFactor - this.currentDayFactor) * s;
+        this.applyNow();
+      }
+    });
   </script>
 
-  <a-scene renderer="colorManagement: true" vr-mode-ui="enabled: true">
+  <a-scene renderer="colorManagement: true" vr-mode-ui="enabled: true" time-lighting>
     <!-- Assets -->
     <a-assets>
       <img id="floorTex" src="https://cdn.aframe.io/a-painter/images/floor.jpg" crossorigin="anonymous" />
-      <img id="skyTex" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/sechelt.jpg" crossorigin="anonymous" />
+      <img id="skyDay" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/sechelt.jpg" crossorigin="anonymous" />
+      <!-- Night sky (replace with your own night 360 if you want) -->
+      <img id="skyNight" src="https://cdn.aframe.io/a-painter/images/sky.jpg" crossorigin="anonymous" />
     </a-assets>
 
     <!-- Camera & cursor -->
@@ -98,7 +185,7 @@
     </a-entity>
 
     <!-- Environment -->
-    <a-sky src="#skyTex" rotation="0 -90 0"></a-sky>
+    <a-sky id="sky" src="#skyDay" rotation="0 -90 0"></a-sky>
 
     <a-plane position="0 0 0" rotation="-90 0 0" width="30" height="30"
       material="src:#floorTex; repeat:10 10; roughness:1; metalness:0">
@@ -116,42 +203,90 @@
       <a-text value="Select a room" align="center" color="#A9B6D3" position="0 -0.65 0" width="6"></a-text>
     </a-entity>
 
-    <!-- PORTALS -->
+    <!-- PORTALS (Laptop-like screens) -->
 
     <!-- CV ROOM -->
     <a-entity position="-6 0 0">
-      <a-box class="clickable" go-to="url: cv.html"
-        position="0 1 0" depth="0.8" height="2.2" width="3"
-        material="color:#4da3ff; opacity:0.92; metalness:0.1; roughness:0.4"></a-box>
-      <a-text value="CV ROOM" align="center" position="0 2.5 0" width="6" color="#E8EEFC"></a-text>
-      <a-text value="Open & download CV" align="center" position="0 2.2 0" width="6" color="#A9B6D3"></a-text>
+      <a-cylinder position="0 0.55 0.15" radius="0.12" height="0.25"
+        material="color:#0b1220; metalness:0.2; roughness:0.6"></a-cylinder>
+      <a-box position="0 0.35 0.15" width="1.6" height="0.08" depth="1.1"
+        material="color:#0b1220; metalness:0.2; roughness:0.6"></a-box>
+
+      <a-box position="0 1.35 0" width="1.9" height="1.2" depth="0.06"
+        material="color:#0b1220; metalness:0.25; roughness:0.5"></a-box>
+
+      <a-plane class="clickable" go-to="url: cv.html"
+        position="0 1.35 0.035" width="1.75" height="1.05"
+        material="color:#4da3ff; opacity:0.9; shader:flat"
+        animation__hover="property: material.opacity; to: 1; dur: 120; startEvents: mouseenter"
+        animation__out="property: material.opacity; to: 0.85; dur: 160; startEvents: mouseleave">
+      </a-plane>
+
+      <a-text value="CV ROOM" align="center" position="0 2.15 0" width="6" color="#E8EEFC"></a-text>
+      <a-text value="Open & download CV" align="center" position="0 1.92 0" width="6" color="#A9B6D3"></a-text>
     </a-entity>
 
     <!-- PROJECTS -->
     <a-entity position="-2 0 -6">
-      <a-box class="clickable" go-to="url: projects.html"
-        position="0 1 0" depth="0.8" height="2.2" width="3"
-        material="color:#6ee7b7; opacity:0.92; metalness:0.1; roughness:0.4"></a-box>
-      <a-text value="PROJECTS" align="center" position="0 2.5 0" width="6" color="#E8EEFC"></a-text>
-      <a-text value="Selected works" align="center" position="0 2.2 0" width="6" color="#A9B6D3"></a-text>
+      <a-cylinder position="0 0.55 0.15" radius="0.12" height="0.25"
+        material="color:#0b1220; metalness:0.2; roughness:0.6"></a-cylinder>
+      <a-box position="0 0.35 0.15" width="1.6" height="0.08" depth="1.1"
+        material="color:#0b1220; metalness:0.2; roughness:0.6"></a-box>
+
+      <a-box position="0 1.35 0" width="1.9" height="1.2" depth="0.06"
+        material="color:#0b1220; metalness:0.25; roughness:0.5"></a-box>
+
+      <a-plane class="clickable" go-to="url: projects.html"
+        position="0 1.35 0.035" width="1.75" height="1.05"
+        material="color:#6ee7b7; opacity:0.9; shader:flat"
+        animation__hover="property: material.opacity; to: 1; dur: 120; startEvents: mouseenter"
+        animation__out="property: material.opacity; to: 0.85; dur: 160; startEvents: mouseleave">
+      </a-plane>
+
+      <a-text value="PROJECTS" align="center" position="0 2.15 0" width="6" color="#E8EEFC"></a-text>
+      <a-text value="Selected works" align="center" position="0 1.92 0" width="6" color="#A9B6D3"></a-text>
     </a-entity>
 
     <!-- COMPANIES -->
     <a-entity position="2 0 -6">
-      <a-box class="clickable" go-to="url: companies.html"
-        position="0 1 0" depth="0.8" height="2.2" width="3"
-        material="color:#ffd166; opacity:0.92; metalness:0.1; roughness:0.4"></a-box>
-      <a-text value="COMPANIES" align="center" position="0 2.5 0" width="6" color="#04101f"></a-text>
-      <a-text value="Two entities" align="center" position="0 2.2 0" width="6" color="#1c2a46"></a-text>
+      <a-cylinder position="0 0.55 0.15" radius="0.12" height="0.25"
+        material="color:#0b1220; metalness:0.2; roughness:0.6"></a-cylinder>
+      <a-box position="0 0.35 0.15" width="1.6" height="0.08" depth="1.1"
+        material="color:#0b1220; metalness:0.2; roughness:0.6"></a-box>
+
+      <a-box position="0 1.35 0" width="1.9" height="1.2" depth="0.06"
+        material="color:#0b1220; metalness:0.25; roughness:0.5"></a-box>
+
+      <a-plane class="clickable" go-to="url: companies.html"
+        position="0 1.35 0.035" width="1.75" height="1.05"
+        material="color:#ffd166; opacity:0.9; shader:flat"
+        animation__hover="property: material.opacity; to: 1; dur: 120; startEvents: mouseenter"
+        animation__out="property: material.opacity; to: 0.85; dur: 160; startEvents: mouseleave">
+      </a-plane>
+
+      <a-text value="COMPANIES" align="center" position="0 2.15 0" width="6" color="#04101f"></a-text>
+      <a-text value="Two entities" align="center" position="0 1.92 0" width="6" color="#1c2a46"></a-text>
     </a-entity>
 
     <!-- COLLABORATION -->
     <a-entity position="6 0 0">
-      <a-box class="clickable" go-to="url: collaboration.html"
-        position="0 1 0" depth="0.8" height="2.2" width="3"
-        material="color:#b794f4; opacity:0.92; metalness:0.1; roughness:0.4"></a-box>
-      <a-text value="COLLAB" align="center" position="0 2.5 0" width="6" color="#E8EEFC"></a-text>
-      <a-text value="Work with me" align="center" position="0 2.2 0" width="6" color="#A9B6D3"></a-text>
+      <a-cylinder position="0 0.55 0.15" radius="0.12" height="0.25"
+        material="color:#0b1220; metalness:0.2; roughness:0.6"></a-cylinder>
+      <a-box position="0 0.35 0.15" width="1.6" height="0.08" depth="1.1"
+        material="color:#0b1220; metalness:0.2; roughness:0.6"></a-box>
+
+      <a-box position="0 1.35 0" width="1.9" height="1.2" depth="0.06"
+        material="color:#0b1220; metalness:0.25; roughness:0.5"></a-box>
+
+      <a-plane class="clickable" go-to="url: collaboration.html"
+        position="0 1.35 0.035" width="1.75" height="1.05"
+        material="color:#b794f4; opacity:0.9; shader:flat"
+        animation__hover="property: material.opacity; to: 1; dur: 120; startEvents: mouseenter"
+        animation__out="property: material.opacity; to: 0.85; dur: 160; startEvents: mouseleave">
+      </a-plane>
+
+      <a-text value="COLLAB" align="center" position="0 2.15 0" width="6" color="#E8EEFC"></a-text>
+      <a-text value="Work with me" align="center" position="0 1.92 0" width="6" color="#A9B6D3"></a-text>
     </a-entity>
 
     <!-- Subtle walls for depth -->
@@ -159,9 +294,10 @@
     <a-box position="-12 1 0" width="0.6" height="3" depth="26" material="color:#0b1220; opacity:0.35"></a-box>
     <a-box position="12 1 0" width="0.6" height="3" depth="26" material="color:#0b1220; opacity:0.35"></a-box>
 
-    <!-- Lighting -->
-    <a-entity light="type:ambient; intensity:0.6; color:#ffffff"></a-entity>
-    <a-entity light="type:directional; intensity:0.8" position="3 6 2"></a-entity>
+    <!-- Lighting (IDs required for time-lighting component) -->
+    <a-entity id="lightAmbient" light="type:ambient; intensity:0.6; color:#ffffff"></a-entity>
+    <a-entity id="lightSun" light="type:directional; intensity:0.8" position="3 6 2"></a-entity>
   </a-scene>
 </body>
 </html>
+```
