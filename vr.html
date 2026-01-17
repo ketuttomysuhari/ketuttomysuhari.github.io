@@ -1,178 +1,370 @@
-```html
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <title>VR — Dr. Ir. Ketut Tomy Suhari</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="WebVR lobby: CV, Projects, Companies, Collaboration" />
 
-  <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
 
-  <!-- Site styles (for overlay UI consistency) -->
-  <link rel="stylesheet" href="assets/css/style.css" />
-  <script defer src="assets/js/main.js"></script>
-
   <style>
-    /* Top overlay UI */
-    .overlay{
-      position:fixed; left:12px; right:12px; top:12px;
-      z-index:1000;
-      display:flex; gap:10px; flex-wrap:wrap;
-      align-items:center; justify-content:space-between;
-      padding:12px 14px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(10,16,30,.55);
-      backdrop-filter: blur(10px);
-      border-radius:14px;
-      color:#e8eefc;
-      font-weight:700;
-    }
-    .overlay .small{font-weight:600; opacity:.85}
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
 
-    .hint{
-      position:fixed; left:12px; bottom:12px;
-      z-index:1000; max-width:560px;
-      padding:10px 12px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(10,16,30,.45);
-      backdrop-filter: blur(10px);
-      border-radius:14px;
-      color:#a9b6d3;
-      font-size:13px; line-height:1.5;
+    /* ===== DOM OVERLAY ROOT (this will be shown in VR if supported) ===== */
+    #domOverlayRoot{
+      position: fixed;
+      inset: 0;
+      display: none;           /* shown only when opened */
+      background: rgba(0,0,0,.35);
+      z-index: 99999;
     }
-    @media (max-width:560px){
-      .hint{max-width:calc(100% - 24px)}
+
+    /* Panel container */
+    .panel{
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%,-50%);
+      width: min(980px, 92vw);
+      height: min(680px, 82vh);
+      border-radius: 18px;
+      overflow: hidden;
+      background: rgba(10,16,30,.92);
+      border: 1px solid rgba(255,255,255,.14);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 18px 60px rgba(0,0,0,.45);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panelHeader{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding: 10px 12px;
+      background: rgba(255,255,255,.06);
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      color: #e8eefc;
+    }
+
+    .titleRow{
+      display:flex; flex-direction:column; gap:2px;
+    }
+    .titleRow .t{ font-weight: 800; font-size: 14px; letter-spacing:.2px; }
+    .titleRow .s{ font-weight: 600; font-size: 12px; opacity:.78; }
+
+    .btns{ display:flex; gap:8px; flex-wrap:wrap; }
+    .btn{
+      appearance:none;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: #e8eefc;
+      padding: 8px 10px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .btn.primary{
+      background: rgba(77,163,255,.20);
+      border-color: rgba(77,163,255,.35);
+    }
+    .btn.danger{
+      background: rgba(255,90,90,.18);
+      border-color: rgba(255,90,90,.30);
+    }
+
+    .panelBody{
+      flex:1;
+      display:flex;
+      background: rgba(0,0,0,.25);
+    }
+
+    /* Left sidebar inside panel */
+    .side{
+      width: 240px;
+      border-right: 1px solid rgba(255,255,255,.10);
+      padding: 10px;
+      color: #e8eefc;
+    }
+    .side h4{
+      margin: 4px 0 10px;
+      font-size: 12px; opacity:.85;
+      letter-spacing: .2px;
+    }
+    .navItem{
+      width:100%;
+      text-align:left;
+      margin-bottom:8px;
+      padding:10px 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      color:#e8eefc;
+      cursor:pointer;
+      font-weight:800;
+      font-size:12px;
+    }
+    .navItem small{ display:block; opacity:.72; font-weight:650; margin-top:2px; }
+
+    /* Right content area */
+    .content{
+      flex:1;
+      position: relative;
+      background: rgba(255,255,255,.03);
+    }
+
+    /* iframe / embed fill */
+    #webFrame, #pdfEmbed{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      border:0;
+      display:none;
+      background:#fff;
+    }
+
+    /* video area */
+    #videoWrap{
+      position:absolute;
+      inset:0;
+      display:none;
+      padding: 12px;
+      box-sizing: border-box;
+    }
+    #videoPlayer{
+      width: 100%;
+      height: 100%;
+      border-radius: 14px;
+      background: #000;
+    }
+
+    /* Fallback hint */
+    #fallbackHint{
+      position: fixed;
+      left: 12px;
+      bottom: 12px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(10,16,30,.55);
+      border: 1px solid rgba(255,255,255,.14);
+      color: #e8eefc;
+      font-size: 12px;
+      z-index: 1000;
+      max-width: 520px;
     }
   </style>
 </head>
 
 <body>
-  <!-- Overlay controls -->
-  <div class="overlay">
-    <div>
-      VR Lobby <span class="badge" style="margin-left:10px">A-Frame</span>
-      <div class="small">Select a portal to open each room.</div>
-    </div>
-    <div class="btns">
-      <a class="btn" href="index.html">Exit to Home</a>
-      <a class="btn primary" href="assets/cv/CV_KetutTomySuhari.pdf" download>Download CV</a>
-    </div>
+  <div id="fallbackHint">
+    Tip: If DOM Overlay is not supported on your browser, portals will open in a new tab.
   </div>
 
-  <div class="hint">
-    Controls: drag to look around • click/tap a portal to open a room.
-    On VR headsets, use the gaze cursor. If VR feels heavy on mobile,
-    use the normal pages from the Home menu.
+  <!-- ===== DOM OVERLAY ROOT ===== -->
+  <div id="domOverlayRoot" aria-hidden="true">
+    <div class="panel" role="dialog" aria-modal="true">
+      <div class="panelHeader">
+        <div class="titleRow">
+          <div class="t" id="panelTitle">Panel</div>
+          <div class="s" id="panelSub">Scroll, open PDF, play video, and visit links.</div>
+        </div>
+        <div class="btns">
+          <button class="btn" id="btnBack">Back</button>
+          <button class="btn primary" id="btnOpenExternal">Open External</button>
+          <button class="btn danger" id="btnClose">Close</button>
+        </div>
+      </div>
+
+      <div class="panelBody">
+        <div class="side">
+          <h4>Quick items</h4>
+          <button class="navItem" data-type="web" data-src="cv.html" data-title="CV (HTML)">
+            CV (scroll)
+            <small>Open cv.html inside the panel</small>
+          </button>
+          <button class="navItem" data-type="pdf" data-src="assets/cv/CV_KetutTomySuhari.pdf" data-title="CV (PDF)">
+            CV PDF
+            <small>Embedded PDF viewer</small>
+          </button>
+          <button class="navItem" data-type="video" data-src="assets/media/intro.mp4" data-title="Intro Video">
+            Video
+            <small>Play video inside panel</small>
+          </button>
+          <button class="navItem" data-type="web" data-src="projects.html" data-title="Projects">
+            Projects
+            <small>Open projects.html</small>
+          </button>
+          <button class="navItem" data-type="external" data-src="https://scholar.google.com/" data-title="External Website">
+            External link
+            <small>Open in new tab</small>
+          </button>
+        </div>
+
+        <div class="content">
+          <iframe id="webFrame" title="Web content"></iframe>
+          <embed id="pdfEmbed" type="application/pdf" />
+          <div id="videoWrap">
+            <video id="videoPlayer" controls playsinline></video>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
-    // Simple navigation component for portals
-    AFRAME.registerComponent('go-to', {
-      schema: { url: { type: 'string' } },
+    // ===== A-Frame click navigation (portals) =====
+    AFRAME.registerComponent('open-panel', {
+      schema: {
+        type: { type: 'string', default: 'web' }, // web | pdf | video | external
+        src: { type: 'string', default: '' },
+        title: { type: 'string', default: 'Panel' }
+      },
       init: function () {
         this.el.addEventListener('click', () => {
-          if (this.data.url) window.location.href = this.data.url;
+          window.VRPanel.open(this.data);
         });
       }
     });
 
-    /**
-     * time-lighting
-     * - Follows user local time: daytime bright, nighttime dim
-     * - Smoothly transitions ambient/directional intensities
-     * - Optionally switches sky texture between day/night
-     */
-    AFRAME.registerComponent('time-lighting', {
-      schema: {
-        updateEveryMs: { type: 'int', default: 5000 },
-        smooth: { type: 'number', default: 0.03 },
-        dayStart: { type: 'number', default: 6.0 },
-        nightStart: { type: 'number', default: 18.0 },
-        switchSky: { type: 'boolean', default: true },
-        skyDay: { type: 'string', default: '#skyDay' },
-        skyNight: { type: 'string', default: '#skyNight' }
-      },
+    // ===== DOM Overlay Panel Controller =====
+    window.VRPanel = (function(){
+      const root = document.getElementById('domOverlayRoot');
+      const title = document.getElementById('panelTitle');
+      const webFrame = document.getElementById('webFrame');
+      const pdfEmbed = document.getElementById('pdfEmbed');
+      const videoWrap = document.getElementById('videoWrap');
+      const videoPlayer = document.getElementById('videoPlayer');
 
-      init: function () {
-        this.lastUpdate = 0;
-        this.targetDayFactor = 1;   // 0..1 (night..day)
-        this.currentDayFactor = 1;
+      const btnClose = document.getElementById('btnClose');
+      const btnBack = document.getElementById('btnBack');
+      const btnOpenExternal = document.getElementById('btnOpenExternal');
 
-        this.ambient = document.querySelector('#lightAmbient');
-        this.sun = document.querySelector('#lightSun');
-        this.sky = document.querySelector('#sky');
+      let history = [];
+      let current = null;
 
-        this.computeTarget();
-        this.currentDayFactor = this.targetDayFactor;
-        this.applyNow();
-      },
-
-      computeTarget: function () {
-        const now = new Date();
-        const h = now.getHours() + now.getMinutes() / 60;
-
-        const dayStart = this.data.dayStart;
-        const nightStart = this.data.nightStart;
-
-        let f = 0;
-        if (h >= dayStart && h < nightStart) {
-          const t = (h - dayStart) / (nightStart - dayStart);
-          f = Math.sin(t * Math.PI); // sunrise->midday->sunset
-        } else {
-          f = 0;
-        }
-
-        // Keep a minimal night light so portals remain visible
-        const minNight = 0.08; // set to 0.02 for darker nights
-        this.targetDayFactor = minNight + (1 - minNight) * f;
-
-        // Optional sky switch
-        if (this.data.switchSky && this.sky) {
-          const isDay = (h >= dayStart && h < nightStart);
-          const desired = isDay ? this.data.skyDay : this.data.skyNight;
-          if (this.sky.getAttribute('src') !== desired) {
-            this.sky.setAttribute('src', desired);
-          }
-        }
-      },
-
-      applyNow: function () {
-        const day = this.currentDayFactor;
-
-        // Map dayFactor to light intensities
-        const ambientIntensity = 0.15 + 0.75 * day; // 0.15..0.9
-        const sunIntensity = 0.05 + 1.15 * day;     // 0.05..1.2
-
-        if (this.ambient) this.ambient.setAttribute('light', 'intensity', ambientIntensity);
-        if (this.sun) this.sun.setAttribute('light', 'intensity', sunIntensity);
-      },
-
-      tick: function (time) {
-        if (time - this.lastUpdate > this.data.updateEveryMs) {
-          this.computeTarget();
-          this.lastUpdate = time;
-        }
-
-        // Smooth transition
-        const s = this.data.smooth;
-        this.currentDayFactor += (this.targetDayFactor - this.currentDayFactor) * s;
-        this.applyNow();
+      function supportedDomOverlay(){
+        // Heuristic: WebXR DOM Overlay support varies.
+        // We still allow panel on non-VR (desktop) as normal overlay UI.
+        return true;
       }
-    });
+
+      function hideAll(){
+        webFrame.style.display = 'none';
+        pdfEmbed.style.display = 'none';
+        videoWrap.style.display = 'none';
+        // stop video when switching
+        try { videoPlayer.pause(); videoPlayer.removeAttribute('src'); videoPlayer.load(); } catch(e){}
+      }
+
+      function setContent(cfg){
+        current = cfg;
+        title.textContent = cfg.title || 'Panel';
+        hideAll();
+
+        if (cfg.type === 'web') {
+          webFrame.style.display = 'block';
+          // NOTE: Cross-origin sites may block embedding via X-Frame-Options / CSP
+          webFrame.src = cfg.src;
+        } else if (cfg.type === 'pdf') {
+          pdfEmbed.style.display = 'block';
+          pdfEmbed.src = cfg.src;
+        } else if (cfg.type === 'video') {
+          videoWrap.style.display = 'block';
+          videoPlayer.src = cfg.src;
+          videoPlayer.play().catch(()=>{});
+        } else if (cfg.type === 'external') {
+          // best practice: open in new tab
+          window.open(cfg.src, '_blank', 'noopener,noreferrer');
+        }
+      }
+
+      function open(cfg){
+        if (!supportedDomOverlay()) {
+          // fallback: open as new tab
+          window.open(cfg.src, '_blank', 'noopener,noreferrer');
+          return;
+        }
+
+        if (cfg.type === 'external') {
+          window.open(cfg.src, '_blank', 'noopener,noreferrer');
+          return;
+        }
+
+        // push history
+        if (current) history.push(current);
+
+        root.style.display = 'block';
+        root.setAttribute('aria-hidden', 'false');
+        setContent(cfg);
+      }
+
+      function close(){
+        root.style.display = 'none';
+        root.setAttribute('aria-hidden', 'true');
+        history = [];
+        current = null;
+        hideAll();
+      }
+
+      function back(){
+        const prev = history.pop();
+        if (!prev) return;
+        setContent(prev);
+      }
+
+      function openExternal(){
+        if (!current) return;
+        const url = current.src || '';
+        if (!url) return;
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }
+
+      // sidebar nav
+      document.querySelectorAll('.navItem').forEach(btn=>{
+        btn.addEventListener('click', () => {
+          const cfg = {
+            type: btn.dataset.type,
+            src: btn.dataset.src,
+            title: btn.dataset.title
+          };
+          if (cfg.type === 'external') {
+            window.open(cfg.src, '_blank', 'noopener,noreferrer');
+            return;
+          }
+          if (current) history.push(current);
+          setContent(cfg);
+        });
+      });
+
+      btnClose.addEventListener('click', close);
+      btnBack.addEventListener('click', back);
+      btnOpenExternal.addEventListener('click', openExternal);
+
+      // Click outside panel to close (optional)
+      root.addEventListener('click', (e)=>{
+        if (e.target === root) close();
+      });
+
+      return { open, close, back };
+    })();
   </script>
 
-  <a-scene renderer="colorManagement: true" vr-mode-ui="enabled: true" time-lighting>
-    <!-- Assets -->
+  <!-- =================== A-FRAME SCENE =================== -->
+  <!-- Key point: dom-overlay="root:#domOverlayRoot" enables VR DOM overlay in compatible browsers -->
+  <a-scene
+    renderer="colorManagement: true"
+    vr-mode-ui="enabled: true"
+    webxr="optionalFeatures: dom-overlay"
+    dom-overlay="root: #domOverlayRoot"
+  >
     <a-assets>
       <img id="floorTex" src="https://cdn.aframe.io/a-painter/images/floor.jpg" crossorigin="anonymous" />
-      <img id="skyDay" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/sechelt.jpg" crossorigin="anonymous" />
-      <!-- Night sky (replace with your own night 360 if you want) -->
-      <img id="skyNight" src="https://cdn.aframe.io/a-painter/images/sky.jpg" crossorigin="anonymous" />
+      <img id="skyTex" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/sechelt.jpg" crossorigin="anonymous" />
     </a-assets>
 
-    <!-- Camera & cursor -->
     <a-entity position="0 1.6 4">
       <a-camera>
         <a-cursor
@@ -184,120 +376,69 @@
       </a-camera>
     </a-entity>
 
-    <!-- Environment -->
-    <a-sky id="sky" src="#skyDay" rotation="0 -90 0"></a-sky>
+    <a-sky src="#skyTex" rotation="0 -90 0"></a-sky>
 
     <a-plane position="0 0 0" rotation="-90 0 0" width="30" height="30"
       material="src:#floorTex; repeat:10 10; roughness:1; metalness:0">
     </a-plane>
 
-    <!-- Center marker -->
-    <a-ring position="0 0.01 0" rotation="-90 0 0" radius-inner="1.4" radius-outer="1.55"
-      material="color:#4da3ff; opacity:0.5; shader:flat">
-    </a-ring>
-
-    <!-- Title -->
     <a-entity position="0 2.2 0">
       <a-text value="VR Lobby" align="center" color="#E8EEFC" width="6"></a-text>
-      <a-text value="Dr. Ir. Ketut Tomy Suhari" align="center" color="#A9B6D3" position="0 -0.35 0" width="7"></a-text>
-      <a-text value="Select a room" align="center" color="#A9B6D3" position="0 -0.65 0" width="6"></a-text>
+      <a-text value="Click a screen to open CV / PDF / Video / Web" align="center" color="#A9B6D3" position="0 -0.35 0" width="7"></a-text>
     </a-entity>
 
-    <!-- PORTALS (Laptop-like screens) -->
+    <!-- ===== Laptop-like 3D screens (clickable) ===== -->
 
-    <!-- CV ROOM -->
+    <!-- CV (HTML) -->
     <a-entity position="-6 0 0">
-      <a-cylinder position="0 0.55 0.15" radius="0.12" height="0.25"
-        material="color:#0b1220; metalness:0.2; roughness:0.6"></a-cylinder>
-      <a-box position="0 0.35 0.15" width="1.6" height="0.08" depth="1.1"
-        material="color:#0b1220; metalness:0.2; roughness:0.6"></a-box>
-
-      <a-box position="0 1.35 0" width="1.9" height="1.2" depth="0.06"
-        material="color:#0b1220; metalness:0.25; roughness:0.5"></a-box>
-
-      <a-plane class="clickable" go-to="url: cv.html"
+      <a-box position="0 0.35 0.15" width="1.6" height="0.08" depth="1.1" material="color:#0b1220; opacity:0.95"></a-box>
+      <a-box position="0 1.35 0" width="1.9" height="1.2" depth="0.06" material="color:#0b1220; opacity:0.95"></a-box>
+      <a-plane class="clickable"
+        open-panel="type: web; src: cv.html; title: CV (scroll)"
         position="0 1.35 0.035" width="1.75" height="1.05"
-        material="color:#4da3ff; opacity:0.9; shader:flat"
-        animation__hover="property: material.opacity; to: 1; dur: 120; startEvents: mouseenter"
-        animation__out="property: material.opacity; to: 0.85; dur: 160; startEvents: mouseleave">
+        material="color:#4da3ff; opacity:0.92; shader:flat">
       </a-plane>
-
-      <a-text value="CV ROOM" align="center" position="0 2.15 0" width="6" color="#E8EEFC"></a-text>
-      <a-text value="Open & download CV" align="center" position="0 1.92 0" width="6" color="#A9B6D3"></a-text>
+      <a-text value="CV (scroll)" align="center" position="0 2.15 0" width="6" color="#E8EEFC"></a-text>
     </a-entity>
 
-    <!-- PROJECTS -->
+    <!-- CV PDF -->
     <a-entity position="-2 0 -6">
-      <a-cylinder position="0 0.55 0.15" radius="0.12" height="0.25"
-        material="color:#0b1220; metalness:0.2; roughness:0.6"></a-cylinder>
-      <a-box position="0 0.35 0.15" width="1.6" height="0.08" depth="1.1"
-        material="color:#0b1220; metalness:0.2; roughness:0.6"></a-box>
-
-      <a-box position="0 1.35 0" width="1.9" height="1.2" depth="0.06"
-        material="color:#0b1220; metalness:0.25; roughness:0.5"></a-box>
-
-      <a-plane class="clickable" go-to="url: projects.html"
+      <a-box position="0 0.35 0.15" width="1.6" height="0.08" depth="1.1" material="color:#0b1220; opacity:0.95"></a-box>
+      <a-box position="0 1.35 0" width="1.9" height="1.2" depth="0.06" material="color:#0b1220; opacity:0.95"></a-box>
+      <a-plane class="clickable"
+        open-panel="type: pdf; src: assets/cv/CV_KetutTomySuhari.pdf; title: CV (PDF)"
         position="0 1.35 0.035" width="1.75" height="1.05"
-        material="color:#6ee7b7; opacity:0.9; shader:flat"
-        animation__hover="property: material.opacity; to: 1; dur: 120; startEvents: mouseenter"
-        animation__out="property: material.opacity; to: 0.85; dur: 160; startEvents: mouseleave">
+        material="color:#6ee7b7; opacity:0.92; shader:flat">
       </a-plane>
-
-      <a-text value="PROJECTS" align="center" position="0 2.15 0" width="6" color="#E8EEFC"></a-text>
-      <a-text value="Selected works" align="center" position="0 1.92 0" width="6" color="#A9B6D3"></a-text>
+      <a-text value="CV (PDF)" align="center" position="0 2.15 0" width="6" color="#E8EEFC"></a-text>
     </a-entity>
 
-    <!-- COMPANIES -->
+    <!-- Video -->
     <a-entity position="2 0 -6">
-      <a-cylinder position="0 0.55 0.15" radius="0.12" height="0.25"
-        material="color:#0b1220; metalness:0.2; roughness:0.6"></a-cylinder>
-      <a-box position="0 0.35 0.15" width="1.6" height="0.08" depth="1.1"
-        material="color:#0b1220; metalness:0.2; roughness:0.6"></a-box>
-
-      <a-box position="0 1.35 0" width="1.9" height="1.2" depth="0.06"
-        material="color:#0b1220; metalness:0.25; roughness:0.5"></a-box>
-
-      <a-plane class="clickable" go-to="url: companies.html"
+      <a-box position="0 0.35 0.15" width="1.6" height="0.08" depth="1.1" material="color:#0b1220; opacity:0.95"></a-box>
+      <a-box position="0 1.35 0" width="1.9" height="1.2" depth="0.06" material="color:#0b1220; opacity:0.95"></a-box>
+      <a-plane class="clickable"
+        open-panel="type: video; src: assets/media/intro.mp4; title: Intro Video"
         position="0 1.35 0.035" width="1.75" height="1.05"
-        material="color:#ffd166; opacity:0.9; shader:flat"
-        animation__hover="property: material.opacity; to: 1; dur: 120; startEvents: mouseenter"
-        animation__out="property: material.opacity; to: 0.85; dur: 160; startEvents: mouseleave">
+        material="color:#ffd166; opacity:0.92; shader:flat">
       </a-plane>
-
-      <a-text value="COMPANIES" align="center" position="0 2.15 0" width="6" color="#04101f"></a-text>
-      <a-text value="Two entities" align="center" position="0 1.92 0" width="6" color="#1c2a46"></a-text>
+      <a-text value="Video" align="center" position="0 2.15 0" width="6" color="#04101f"></a-text>
     </a-entity>
 
-    <!-- COLLABORATION -->
+    <!-- External website -->
     <a-entity position="6 0 0">
-      <a-cylinder position="0 0.55 0.15" radius="0.12" height="0.25"
-        material="color:#0b1220; metalness:0.2; roughness:0.6"></a-cylinder>
-      <a-box position="0 0.35 0.15" width="1.6" height="0.08" depth="1.1"
-        material="color:#0b1220; metalness:0.2; roughness:0.6"></a-box>
-
-      <a-box position="0 1.35 0" width="1.9" height="1.2" depth="0.06"
-        material="color:#0b1220; metalness:0.25; roughness:0.5"></a-box>
-
-      <a-plane class="clickable" go-to="url: collaboration.html"
+      <a-box position="0 0.35 0.15" width="1.6" height="0.08" depth="1.1" material="color:#0b1220; opacity:0.95"></a-box>
+      <a-box position="0 1.35 0" width="1.9" height="1.2" depth="0.06" material="color:#0b1220; opacity:0.95"></a-box>
+      <a-plane class="clickable"
+        open-panel="type: external; src: https://scholar.google.com/; title: External"
         position="0 1.35 0.035" width="1.75" height="1.05"
-        material="color:#b794f4; opacity:0.9; shader:flat"
-        animation__hover="property: material.opacity; to: 1; dur: 120; startEvents: mouseenter"
-        animation__out="property: material.opacity; to: 0.85; dur: 160; startEvents: mouseleave">
+        material="color:#b794f4; opacity:0.92; shader:flat">
       </a-plane>
-
-      <a-text value="COLLAB" align="center" position="0 2.15 0" width="6" color="#E8EEFC"></a-text>
-      <a-text value="Work with me" align="center" position="0 1.92 0" width="6" color="#A9B6D3"></a-text>
+      <a-text value="Open Website" align="center" position="0 2.15 0" width="6" color="#E8EEFC"></a-text>
     </a-entity>
 
-    <!-- Subtle walls for depth -->
-    <a-box position="0 1 -12" width="26" height="3" depth="0.6" material="color:#0b1220; opacity:0.35"></a-box>
-    <a-box position="-12 1 0" width="0.6" height="3" depth="26" material="color:#0b1220; opacity:0.35"></a-box>
-    <a-box position="12 1 0" width="0.6" height="3" depth="26" material="color:#0b1220; opacity:0.35"></a-box>
-
-    <!-- Lighting (IDs required for time-lighting component) -->
-    <a-entity id="lightAmbient" light="type:ambient; intensity:0.6; color:#ffffff"></a-entity>
-    <a-entity id="lightSun" light="type:directional; intensity:0.8" position="3 6 2"></a-entity>
+    <a-entity light="type:ambient; intensity:0.7"></a-entity>
+    <a-entity light="type:directional; intensity:0.9" position="3 6 2"></a-entity>
   </a-scene>
 </body>
 </html>
-```
