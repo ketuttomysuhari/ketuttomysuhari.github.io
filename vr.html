@@ -3,30 +3,30 @@
 <head>
   <meta charset="utf-8" />
   <title>VR — Dr. Ir. Ketut Tomy Suhari</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
 
   <style>
-    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:#000; }
 
-    /* ===== DOM OVERLAY ROOT (this will be shown in VR if supported) ===== */
+    /* ===== DOM OVERLAY ROOT ===== */
     #domOverlayRoot{
       position: fixed;
       inset: 0;
-      display: none;           /* shown only when opened */
+      display: none;
       background: rgba(0,0,0,.35);
       z-index: 99999;
+      touch-action: none;
     }
 
-    /* Panel container */
     .panel{
       position: absolute;
       left: 50%;
       top: 50%;
       transform: translate(-50%,-50%);
-      width: min(980px, 92vw);
-      height: min(680px, 82vh);
+      width: min(1040px, 94vw);
+      height: min(720px, 84vh);
       border-radius: 18px;
       overflow: hidden;
       background: rgba(10,16,30,.92);
@@ -48,9 +48,7 @@
       color: #e8eefc;
     }
 
-    .titleRow{
-      display:flex; flex-direction:column; gap:2px;
-    }
+    .titleRow{ display:flex; flex-direction:column; gap:2px; }
     .titleRow .t{ font-weight: 800; font-size: 14px; letter-spacing:.2px; }
     .titleRow .s{ font-weight: 600; font-size: 12px; opacity:.78; }
 
@@ -66,33 +64,20 @@
       font-size: 12px;
       cursor: pointer;
     }
-    .btn.primary{
-      background: rgba(77,163,255,.20);
-      border-color: rgba(77,163,255,.35);
-    }
-    .btn.danger{
-      background: rgba(255,90,90,.18);
-      border-color: rgba(255,90,90,.30);
-    }
+    .btn.primary{ background: rgba(77,163,255,.20); border-color: rgba(77,163,255,.35); }
+    .btn.danger{ background: rgba(255,90,90,.18); border-color: rgba(255,90,90,.30); }
 
-    .panelBody{
-      flex:1;
-      display:flex;
-      background: rgba(0,0,0,.25);
-    }
+    .panelBody{ flex:1; display:flex; background: rgba(0,0,0,.25); }
 
-    /* Left sidebar inside panel */
     .side{
-      width: 240px;
+      width: 260px;
       border-right: 1px solid rgba(255,255,255,.10);
       padding: 10px;
       color: #e8eefc;
+      overflow:auto;
     }
-    .side h4{
-      margin: 4px 0 10px;
-      font-size: 12px; opacity:.85;
-      letter-spacing: .2px;
-    }
+    .side h4{ margin: 4px 0 10px; font-size: 12px; opacity:.85; letter-spacing: .2px; }
+
     .navItem{
       width:100%;
       text-align:left;
@@ -108,28 +93,18 @@
     }
     .navItem small{ display:block; opacity:.72; font-weight:650; margin-top:2px; }
 
-    /* Right content area */
-    .content{
-      flex:1;
-      position: relative;
-      background: rgba(255,255,255,.03);
-    }
+    .content{ flex:1; position: relative; background: rgba(255,255,255,.03); }
 
-    /* iframe / embed fill */
     #webFrame, #pdfEmbed{
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
+      position:absolute; inset:0;
+      width:100%; height:100%;
       border:0;
       display:none;
       background:#fff;
     }
 
-    /* video area */
     #videoWrap{
-      position:absolute;
-      inset:0;
+      position:absolute; inset:0;
       display:none;
       padding: 12px;
       box-sizing: border-box;
@@ -141,8 +116,7 @@
       background: #000;
     }
 
-    /* Fallback hint */
-    #fallbackHint{
+    #hint{
       position: fixed;
       left: 12px;
       bottom: 12px;
@@ -153,14 +127,96 @@
       color: #e8eefc;
       font-size: 12px;
       z-index: 1000;
-      max-width: 520px;
+      max-width: 560px;
+      pointer-events: none;
+    }
+
+    /* ===== MOBILE CONTROLS (Joystick + Look Pad) ===== */
+    #mobileControls{
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      pointer-events: none; /* enable only on child elements */
+    }
+
+    .joyZone{
+      position: absolute;
+      bottom: 18px;
+      width: 160px;
+      height: 160px;
+      pointer-events: auto;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    #joyLeft { left: 16px; }
+    #lookRight { right: 16px; width: 180px; height: 180px; }
+
+    .joyBase{
+      position:absolute; inset:0;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.18);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 12px 30px rgba(0,0,0,.35);
+    }
+
+    .joyKnob{
+      position:absolute;
+      left: 50%;
+      top: 50%;
+      width: 64px;
+      height: 64px;
+      margin-left: -32px;
+      margin-top: -32px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.25);
+      box-shadow: 0 10px 18px rgba(0,0,0,.35);
+      transform: translate3d(0,0,0);
+    }
+
+    .joyLabel{
+      position:absolute;
+      top: -22px;
+      left: 0;
+      right: 0;
+      text-align:center;
+      font-weight: 700;
+      font-size: 12px;
+      color: rgba(232,238,252,.85);
+      text-shadow: 0 2px 10px rgba(0,0,0,.6);
+      pointer-events:none;
+    }
+
+    /* hide mobile controls on wide desktop */
+    @media (min-width: 1024px){
+      #mobileControls{ display:none; }
     }
   </style>
 </head>
 
 <body>
-  <div id="fallbackHint">
-    Tip: If DOM Overlay is not supported on your browser, portals will open in a new tab.
+  <div id="hint">
+    Mobile: use left joystick to move, right pad to look around. Tap flyers to open pages. Click video screen to open panel.
+  </div>
+
+  <!-- ===== MOBILE CONTROLS UI ===== -->
+  <div id="mobileControls" aria-hidden="true">
+    <!-- Left joystick -->
+    <div class="joyZone" id="joyLeft">
+      <div class="joyLabel">MOVE</div>
+      <div class="joyBase"></div>
+      <div class="joyKnob" id="joyLeftKnob"></div>
+    </div>
+
+    <!-- Right look pad -->
+    <div class="joyZone" id="lookRight">
+      <div class="joyLabel">LOOK</div>
+      <div class="joyBase"></div>
+      <div class="joyKnob" id="lookRightKnob"></div>
+    </div>
   </div>
 
   <!-- ===== DOM OVERLAY ROOT ===== -->
@@ -169,7 +225,7 @@
       <div class="panelHeader">
         <div class="titleRow">
           <div class="t" id="panelTitle">Panel</div>
-          <div class="s" id="panelSub">Scroll, open PDF, play video, and visit links.</div>
+          <div class="s" id="panelSub">Scroll pages, open PDF, play video, and visit links.</div>
         </div>
         <div class="btns">
           <button class="btn" id="btnBack">Back</button>
@@ -181,24 +237,54 @@
       <div class="panelBody">
         <div class="side">
           <h4>Quick items</h4>
+
+          <button class="navItem" data-type="web" data-src="index.html" data-title="Home (Portfolio)">
+            Home (Portfolio)
+            <small>Open index.html</small>
+          </button>
+
           <button class="navItem" data-type="web" data-src="cv.html" data-title="CV (HTML)">
             CV (scroll)
-            <small>Open cv.html inside the panel</small>
+            <small>Open cv.html inside panel</small>
           </button>
-          <button class="navItem" data-type="pdf" data-src="assets/CV_KTS-4.pdf" data-title="CV (PDF)">
+
+          <button class="navItem" data-type="pdf" data-src="data/CV_KTS-4.pdf" data-title="CV (PDF)">
             CV PDF
             <small>Embedded PDF viewer</small>
           </button>
-          <button class="navItem" data-type="video" data-src="assets/media/intro.mp4" data-title="Intro Video">
-            Video
+
+          <button class="navItem" data-type="video" data-src="data/myproject-1.mp4" data-title="Project Video">
+            Project video
             <small>Play video inside panel</small>
           </button>
+
           <button class="navItem" data-type="web" data-src="projects.html" data-title="Projects">
             Projects
             <small>Open projects.html</small>
           </button>
-          <button class="navItem" data-type="external" data-src="https://scholar.google.com/" data-title="External Website">
-            External link
+
+          <button class="navItem" data-type="web" data-src="companies.html" data-title="Companies">
+            Companies
+            <small>Open companies.html</small>
+          </button>
+
+          <button class="navItem" data-type="web" data-src="collaboration.html" data-title="Collaboration">
+            Collaboration
+            <small>Open collaboration.html</small>
+          </button>
+
+          <button class="navItem" data-type="external" data-src="https://scholar.google.com/citations?user=5md4iHUAAAAJ&hl=en&oi=ao" data-title="Google Scholar">
+            Google Scholar
+            <small>Open in new tab</small>
+          </button>
+
+          <button class="navItem" data-type="external" data-src="https://orcid.org/0000-0002-1416-1302" data-title="ORCID">
+            ORCID
+            <small>Open in new tab</small>
+          </button>
+
+          <button class="navItem" data-type="external" data-src="https://www.scopus.com/authid/detail.uri?authorId=57196485539" data-title="Scopus">
+            Scopus
             <small>Open in new tab</small>
           </button>
         </div>
@@ -215,21 +301,9 @@
   </div>
 
   <script>
-    // ===== A-Frame click navigation (portals) =====
-    AFRAME.registerComponent('open-panel', {
-      schema: {
-        type: { type: 'string', default: 'web' }, // web | pdf | video | external
-        src: { type: 'string', default: '' },
-        title: { type: 'string', default: 'Panel' }
-      },
-      init: function () {
-        this.el.addEventListener('click', () => {
-          window.VRPanel.open(this.data);
-        });
-      }
-    });
-
-    // ===== DOM Overlay Panel Controller =====
+    /* =========================
+       DOM Overlay Panel Control
+    ========================== */
     window.VRPanel = (function(){
       const root = document.getElementById('domOverlayRoot');
       const title = document.getElementById('panelTitle');
@@ -245,17 +319,10 @@
       let history = [];
       let current = null;
 
-      function supportedDomOverlay(){
-        // Heuristic: WebXR DOM Overlay support varies.
-        // We still allow panel on non-VR (desktop) as normal overlay UI.
-        return true;
-      }
-
       function hideAll(){
         webFrame.style.display = 'none';
         pdfEmbed.style.display = 'none';
         videoWrap.style.display = 'none';
-        // stop video when switching
         try { videoPlayer.pause(); videoPlayer.removeAttribute('src'); videoPlayer.load(); } catch(e){}
       }
 
@@ -266,7 +333,6 @@
 
         if (cfg.type === 'web') {
           webFrame.style.display = 'block';
-          // NOTE: Cross-origin sites may block embedding via X-Frame-Options / CSP
           webFrame.src = cfg.src;
         } else if (cfg.type === 'pdf') {
           pdfEmbed.style.display = 'block';
@@ -276,26 +342,16 @@
           videoPlayer.src = cfg.src;
           videoPlayer.play().catch(()=>{});
         } else if (cfg.type === 'external') {
-          // best practice: open in new tab
           window.open(cfg.src, '_blank', 'noopener,noreferrer');
         }
       }
 
       function open(cfg){
-        if (!supportedDomOverlay()) {
-          // fallback: open as new tab
-          window.open(cfg.src, '_blank', 'noopener,noreferrer');
-          return;
-        }
-
         if (cfg.type === 'external') {
           window.open(cfg.src, '_blank', 'noopener,noreferrer');
           return;
         }
-
-        // push history
         if (current) history.push(current);
-
         root.style.display = 'block';
         root.setAttribute('aria-hidden', 'false');
         setContent(cfg);
@@ -316,20 +372,13 @@
       }
 
       function openExternal(){
-        if (!current) return;
-        const url = current.src || '';
-        if (!url) return;
-        window.open(url, '_blank', 'noopener,noreferrer');
+        if (!current || !current.src) return;
+        window.open(current.src, '_blank', 'noopener,noreferrer');
       }
 
-      // sidebar nav
       document.querySelectorAll('.navItem').forEach(btn=>{
         btn.addEventListener('click', () => {
-          const cfg = {
-            type: btn.dataset.type,
-            src: btn.dataset.src,
-            title: btn.dataset.title
-          };
+          const cfg = { type: btn.dataset.type, src: btn.dataset.src, title: btn.dataset.title };
           if (cfg.type === 'external') {
             window.open(cfg.src, '_blank', 'noopener,noreferrer');
             return;
@@ -342,18 +391,234 @@
       btnClose.addEventListener('click', close);
       btnBack.addEventListener('click', back);
       btnOpenExternal.addEventListener('click', openExternal);
-
-      // Click outside panel to close (optional)
-      root.addEventListener('click', (e)=>{
-        if (e.target === root) close();
-      });
+      root.addEventListener('click', (e)=>{ if (e.target === root) close(); });
 
       return { open, close, back };
     })();
+
+    /* =========================
+       A-Frame Components
+    ========================== */
+    AFRAME.registerComponent('floaty', {
+      schema: { amp: { type: 'number', default: 0.06 }, speed: { type: 'number', default: 1.0 } },
+      init: function () { this.startY = this.el.object3D.position.y; this.t0 = performance.now(); },
+      tick: function () {
+        const t = (performance.now() - this.t0) / 1000;
+        this.el.object3D.position.y = this.startY + Math.sin(t * this.data.speed) * this.data.amp;
+      }
+    });
+
+    AFRAME.registerComponent('hoverfx', {
+      init: function () {
+        const el = this.el;
+        const base = el.object3D.scale.clone();
+        el.addEventListener('mouseenter', () => el.object3D.scale.set(base.x*1.04, base.y*1.04, base.z*1.04));
+        el.addEventListener('mouseleave', () => el.object3D.scale.copy(base));
+      }
+    });
+
+    AFRAME.registerComponent('open-panel', {
+      schema: { type: { type: 'string', default: 'web' }, src: { type: 'string', default: '' }, title: { type: 'string', default: 'Panel' } },
+      init: function () {
+        this.el.classList.add('clickable');
+        this.el.addEventListener('click', () => window.VRPanel.open(this.data));
+      }
+    });
+
+    /* =========================
+       Mobile Locomotion:
+       - Left joystick => WASD-like movement
+       - Right pad => rotate camera (yaw/pitch)
+    ========================== */
+    AFRAME.registerComponent('mobile-controls', {
+      schema: {
+        moveSpeed: { type: 'number', default: 2.0 },   // m/s
+        lookSpeed: { type: 'number', default: 0.12 },  // deg per pixel-ish scaling
+        deadZone: { type: 'number', default: 0.08 }    // joystick dead zone
+      },
+      init: function(){
+        const el = this.el;
+        this.camera = el;
+
+        // movement vector from joystick (-1..1)
+        this.moveX = 0; // left/right
+        this.moveY = 0; // forward/back
+
+        // look delta accumulated
+        this.lookDX = 0;
+        this.lookDY = 0;
+
+        // Track current rotation
+        const r = this.camera.getAttribute('rotation') || {x:0,y:0,z:0};
+        this.pitch = r.x;
+        this.yaw = r.y;
+
+        // Hook DOM joystick controls
+        this._setupJoysticks();
+      },
+
+      tick: function(time, dt){
+        const delta = dt / 1000;
+        if (!delta) return;
+
+        // Apply look
+        if (this.lookDX !== 0 || this.lookDY !== 0){
+          this.yaw -= this.lookDX * this.data.lookSpeed;
+          this.pitch -= this.lookDY * this.data.lookSpeed;
+
+          // clamp pitch
+          this.pitch = Math.max(-80, Math.min(80, this.pitch));
+
+          this.camera.setAttribute('rotation', { x: this.pitch, y: this.yaw, z: 0 });
+
+          // reset per frame
+          this.lookDX = 0;
+          this.lookDY = 0;
+        }
+
+        // Apply movement in the direction of yaw
+        const mx = this._applyDeadzone(this.moveX);
+        const my = this._applyDeadzone(this.moveY);
+
+        if (mx === 0 && my === 0) return;
+
+        const speed = this.data.moveSpeed;
+
+        // Convert local joystick to world movement based on yaw
+        const yawRad = (this.yaw * Math.PI) / 180;
+        const cos = Math.cos(yawRad);
+        const sin = Math.sin(yawRad);
+
+        // local: x (strafe), y (forward)
+        const localX = mx * speed * delta;
+        const localZ = my * speed * delta;
+
+        // world deltas
+        const dx = (localX * cos) + (localZ * sin);
+        const dz = (localZ * cos) - (localX * sin);
+
+        const pos = this.camera.getAttribute('position');
+        this.camera.setAttribute('position', { x: pos.x + dx, y: pos.y, z: pos.z + dz });
+      },
+
+      _applyDeadzone: function(v){
+        const d = this.data.deadZone;
+        if (Math.abs(v) < d) return 0;
+        // rescale outside deadzone
+        const sign = v < 0 ? -1 : 1;
+        const mag = (Math.abs(v) - d) / (1 - d);
+        return sign * Math.min(1, mag);
+      },
+
+      _setupJoysticks: function(){
+        const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+        const controlsRoot = document.getElementById('mobileControls');
+
+        // Show on touch devices
+        if (isTouch) controlsRoot.style.display = 'block';
+
+        const joyLeft = document.getElementById('joyLeft');
+        const joyLeftKnob = document.getElementById('joyLeftKnob');
+
+        const lookRight = document.getElementById('lookRight');
+        const lookRightKnob = document.getElementById('lookRightKnob');
+
+        // Helpers
+        const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+
+        // ---- LEFT JOYSTICK (MOVE) ----
+        let leftActive = false;
+        let leftStart = {x:0, y:0};
+
+        const leftDown = (e) => {
+          leftActive = true;
+          const t = e.touches ? e.touches[0] : e;
+          leftStart = { x: t.clientX, y: t.clientY };
+          e.preventDefault();
+        };
+
+        const leftMove = (e) => {
+          if (!leftActive) return;
+          const t = e.touches ? e.touches[0] : e;
+
+          const dx = t.clientX - leftStart.x;
+          const dy = t.clientY - leftStart.y;
+
+          const radius = 60;
+          const ndx = clamp(dx / radius, -1, 1);
+          const ndy = clamp(dy / radius, -1, 1);
+
+          // In A-Frame, forward is negative Z; we use my as -ndy so up means forward
+          this.moveX = ndx;
+          this.moveY = -ndy;
+
+          joyLeftKnob.style.transform = `translate3d(${ndx * radius}px, ${ndy * radius}px, 0)`;
+          e.preventDefault();
+        };
+
+        const leftUp = (e) => {
+          leftActive = false;
+          this.moveX = 0;
+          this.moveY = 0;
+          joyLeftKnob.style.transform = `translate3d(0px, 0px, 0)`;
+          e.preventDefault();
+        };
+
+        joyLeft.addEventListener('touchstart', leftDown, {passive:false});
+        joyLeft.addEventListener('touchmove', leftMove, {passive:false});
+        joyLeft.addEventListener('touchend', leftUp, {passive:false});
+        joyLeft.addEventListener('touchcancel', leftUp, {passive:false});
+
+        // ---- RIGHT PAD (LOOK) ----
+        let rightActive = false;
+        let rightPrev = {x:0, y:0};
+
+        const rightDown = (e) => {
+          rightActive = true;
+          const t = e.touches ? e.touches[0] : e;
+          rightPrev = { x: t.clientX, y: t.clientY };
+          e.preventDefault();
+        };
+
+        const rightMove = (e) => {
+          if (!rightActive) return;
+          const t = e.touches ? e.touches[0] : e;
+
+          const dx = t.clientX - rightPrev.x;
+          const dy = t.clientY - rightPrev.y;
+
+          rightPrev = { x: t.clientX, y: t.clientY };
+
+          // accumulate delta (applied each tick)
+          this.lookDX += dx;
+          this.lookDY += dy;
+
+          // small knob feedback (clamped)
+          const radius = 60;
+          const kx = clamp(dx, -radius, radius);
+          const ky = clamp(dy, -radius, radius);
+          lookRightKnob.style.transform = `translate3d(${kx}px, ${ky}px, 0)`;
+          e.preventDefault();
+        };
+
+        const rightUp = (e) => {
+          rightActive = false;
+          lookRightKnob.style.transform = `translate3d(0px, 0px, 0)`;
+          e.preventDefault();
+        };
+
+        lookRight.addEventListener('touchstart', rightDown, {passive:false});
+        lookRight.addEventListener('touchmove', rightMove, {passive:false});
+        lookRight.addEventListener('touchend', rightUp, {passive:false});
+        lookRight.addEventListener('touchcancel', rightUp, {passive:false});
+
+        // Avoid page scrolling on touch while interacting
+        document.body.style.touchAction = 'none';
+      }
+    });
   </script>
 
   <!-- =================== A-FRAME SCENE =================== -->
-  <!-- Key point: dom-overlay="root:#domOverlayRoot" enables VR DOM overlay in compatible browsers -->
   <a-scene
     renderer="colorManagement: true"
     vr-mode-ui="enabled: true"
@@ -361,84 +626,146 @@
     dom-overlay="root: #domOverlayRoot"
   >
     <a-assets>
-      <img id="floorTex" src="https://cdn.aframe.io/a-painter/images/floor.jpg" crossorigin="anonymous" />
       <img id="skyTex" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/sechelt.jpg" crossorigin="anonymous" />
+      <video id="projVideo" src="data/myproject-1.mp4" preload="auto" crossorigin="anonymous" webkit-playsinline playsinline></video>
     </a-assets>
 
-    <a-entity position="0 1.6 4">
-      <a-camera>
+    <!-- Camera (attach mobile-controls here) -->
+    <a-entity id="rig" position="0 0 0">
+      <a-entity id="cam"
+        position="0 1.6 5"
+        camera
+        mobile-controls="moveSpeed: 2.2; lookSpeed: 0.10; deadZone: 0.10"
+      >
         <a-cursor
           raycaster="objects: .clickable"
           fuse="false"
           material="color:#ffffff; shader:flat; opacity:0.9"
           geometry="primitive:ring; radiusInner:0.01; radiusOuter:0.016">
         </a-cursor>
-      </a-camera>
+      </a-entity>
     </a-entity>
 
+    <!-- Environment -->
     <a-sky src="#skyTex" rotation="0 -90 0"></a-sky>
-
-    <a-plane position="0 0 0" rotation="-90 0 0" width="30" height="30"
-      material="src:#floorTex; repeat:10 10; roughness:1; metalness:0">
+    <a-plane position="0 0 0" rotation="-90 0 0" width="40" height="40"
+      material="color:#0b1220; roughness:1; metalness:0">
     </a-plane>
 
-    <a-entity position="0 2.2 0">
-      <a-text value="VR Lobby" align="center" color="#E8EEFC" width="6"></a-text>
-      <a-text value="Click a screen to open CV / PDF / Video / Web" align="center" color="#A9B6D3" position="0 -0.35 0" width="7"></a-text>
+    <!-- Title -->
+    <a-entity position="0 3.0 -3.2">
+      <a-text value="VR Portfolio Lobby" align="center" color="#E8EEFC" width="7"></a-text>
+      <a-text value="Mobile joystick enabled" align="center" color="#A9B6D3" position="0 -0.35 0" width="8"></a-text>
     </a-entity>
 
-    <!-- ===== Laptop-like 3D screens (clickable) ===== -->
+    <!-- =================== BIG WIDE VIDEO SCREEN =================== -->
+    <a-entity position="0 2.1 -4.2" rotation="0 0 0">
+      <a-plane width="7.2" height="4.1" position="0 0 0"
+        material="color:#0b1220; opacity:0.92; shader:flat"></a-plane>
 
-    <!-- CV (HTML) -->
-    <a-entity position="-6 0 0">
-      <a-box position="0 0.35 0.15" width="1.6" height="0.08" depth="1.1" material="color:#0b1220; opacity:0.95"></a-box>
-      <a-box position="0 1.35 0" width="1.9" height="1.2" depth="0.06" material="color:#0b1220; opacity:0.95"></a-box>
       <a-plane class="clickable"
-        open-panel="type: web; src: cv.html; title: CV (scroll)"
-        position="0 1.35 0.035" width="1.75" height="1.05"
-        material="color:#4da3ff; opacity:0.92; shader:flat">
+        open-panel="type: video; src: data/myproject-1.mp4; title: Project Video (Large Screen)"
+        width="6.9" height="3.88" position="0 0 0.01"
+        material="shader: flat; src: #projVideo; transparent: true; opacity: 1">
       </a-plane>
-      <a-text value="CV (scroll)" align="center" position="0 2.15 0" width="6" color="#E8EEFC"></a-text>
+
+      <a-text value="Project Showcase Video (tap to open panel)" align="center"
+        color="#E8EEFC" width="7" position="0 -2.35 0"></a-text>
     </a-entity>
 
-    <!-- CV PDF -->
-    <a-entity position="-2 0 -6">
-      <a-box position="0 0.35 0.15" width="1.6" height="0.08" depth="1.1" material="color:#0b1220; opacity:0.95"></a-box>
-      <a-box position="0 1.35 0" width="1.9" height="1.2" depth="0.06" material="color:#0b1220; opacity:0.95"></a-box>
-      <a-plane class="clickable"
-        open-panel="type: pdf; src: assets/cv/CV_KetutTomySuhari.pdf; title: CV (PDF)"
-        position="0 1.35 0.035" width="1.75" height="1.05"
-        material="color:#6ee7b7; opacity:0.92; shader:flat">
-      </a-plane>
-      <a-text value="CV (PDF)" align="center" position="0 2.15 0" width="6" color="#E8EEFC"></a-text>
+    <!-- =================== FLYER MENU =================== -->
+    <a-entity position="-3.6 1.35 -2.2" rotation="0 15 0" floaty="amp:0.05; speed:1.2">
+      <a-plane class="clickable" hoverfx
+        open-panel="type: web; src: index.html; title: Home (Portfolio)"
+        width="1.65" height="0.95"
+        material="color:#102a56; opacity:0.92; shader:flat"></a-plane>
+      <a-text value="Home" align="center" color="#E8EEFC" width="4" position="0 -0.62 0.02"></a-text>
     </a-entity>
 
-    <!-- Video -->
-    <a-entity position="2 0 -6">
-      <a-box position="0 0.35 0.15" width="1.6" height="0.08" depth="1.1" material="color:#0b1220; opacity:0.95"></a-box>
-      <a-box position="0 1.35 0" width="1.9" height="1.2" depth="0.06" material="color:#0b1220; opacity:0.95"></a-box>
-      <a-plane class="clickable"
-        open-panel="type: video; src: assets/media/intro.mp4; title: Intro Video"
-        position="0 1.35 0.035" width="1.75" height="1.05"
-        material="color:#ffd166; opacity:0.92; shader:flat">
-      </a-plane>
-      <a-text value="Video" align="center" position="0 2.15 0" width="6" color="#04101f"></a-text>
+    <a-entity position="-2.0 1.35 -2.55" rotation="0 8 0" floaty="amp:0.06; speed:1.1">
+      <a-plane class="clickable" hoverfx
+        open-panel="type: web; src: cv.html; title: CV (HTML)"
+        width="1.65" height="0.95"
+        material="color:#1c3f7a; opacity:0.92; shader:flat"></a-plane>
+      <a-text value="CV (HTML)" align="center" color="#E8EEFC" width="4" position="0 -0.62 0.02"></a-text>
     </a-entity>
 
-    <!-- External website -->
-    <a-entity position="6 0 0">
-      <a-box position="0 0.35 0.15" width="1.6" height="0.08" depth="1.1" material="color:#0b1220; opacity:0.95"></a-box>
-      <a-box position="0 1.35 0" width="1.9" height="1.2" depth="0.06" material="color:#0b1220; opacity:0.95"></a-box>
-      <a-plane class="clickable"
-        open-panel="type: external; src: https://scholar.google.com/; title: External"
-        position="0 1.35 0.035" width="1.75" height="1.05"
-        material="color:#b794f4; opacity:0.92; shader:flat">
-      </a-plane>
-      <a-text value="Open Website" align="center" position="0 2.15 0" width="6" color="#E8EEFC"></a-text>
+    <a-entity position="-0.4 1.35 -2.72" rotation="0 0 0" floaty="amp:0.05; speed:1.3">
+      <a-plane class="clickable" hoverfx
+        open-panel="type: pdf; src: data/CV_KTS-4.pdf; title: CV (PDF)"
+        width="1.65" height="0.95"
+        material="color:#195d45; opacity:0.92; shader:flat"></a-plane>
+      <a-text value="CV (PDF)" align="center" color="#E8EEFC" width="4" position="0 -0.62 0.02"></a-text>
     </a-entity>
 
-    <a-entity light="type:ambient; intensity:0.7"></a-entity>
+    <a-entity position="1.2 1.35 -2.62" rotation="0 -8 0" floaty="amp:0.06; speed:1.15">
+      <a-plane class="clickable" hoverfx
+        open-panel="type: web; src: projects.html; title: Projects"
+        width="1.65" height="0.95"
+        material="color:#5a3a10; opacity:0.92; shader:flat"></a-plane>
+      <a-text value="Projects" align="center" color="#E8EEFC" width="4" position="0 -0.62 0.02"></a-text>
+    </a-entity>
+
+    <a-entity position="2.8 1.35 -2.28" rotation="0 -15 0" floaty="amp:0.05; speed:1.2">
+      <a-plane class="clickable" hoverfx
+        open-panel="type: web; src: companies.html; title: Companies"
+        width="1.65" height="0.95"
+        material="color:#3b2a68; opacity:0.92; shader:flat"></a-plane>
+      <a-text value="Companies" align="center" color="#E8EEFC" width="4" position="0 -0.62 0.02"></a-text>
+    </a-entity>
+
+    <a-entity position="4.2 1.35 -1.7" rotation="0 -22 0" floaty="amp:0.06; speed:1.05">
+      <a-plane class="clickable" hoverfx
+        open-panel="type: web; src: collaboration.html; title: Collaboration"
+        width="1.65" height="0.95"
+        material="color:#0f4c5c; opacity:0.92; shader:flat"></a-plane>
+      <a-text value="Collaboration" align="center" color="#E8EEFC" width="4" position="0 -0.62 0.02"></a-text>
+    </a-entity>
+
+    <!-- Academic profiles -->
+    <a-entity position="-4.4 1.0 -1.3" rotation="0 25 0" floaty="amp:0.05; speed:1.0">
+      <a-plane class="clickable" hoverfx
+        open-panel="type: external; src: https://scholar.google.com/citations?user=5md4iHUAAAAJ&hl=en&oi=ao; title: Google Scholar"
+        width="1.65" height="0.85"
+        material="color:#2b3a67; opacity:0.92; shader:flat"></a-plane>
+      <a-text value="Scholar" align="center" color="#E8EEFC" width="4" position="0 -0.56 0.02"></a-text>
+    </a-entity>
+
+    <a-entity position="-3.0 0.95 -1.55" rotation="0 18 0" floaty="amp:0.05; speed:1.15">
+      <a-plane class="clickable" hoverfx
+        open-panel="type: external; src: https://orcid.org/0000-0002-1416-1302; title: ORCID"
+        width="1.65" height="0.85"
+        material="color:#1f5a2f; opacity:0.92; shader:flat"></a-plane>
+      <a-text value="ORCID" align="center" color="#E8EEFC" width="4" position="0 -0.56 0.02"></a-text>
+    </a-entity>
+
+    <a-entity position="-1.6 0.92 -1.75" rotation="0 10 0" floaty="amp:0.05; speed:1.08">
+      <a-plane class="clickable" hoverfx
+        open-panel="type: external; src: https://www.scopus.com/authid/detail.uri?authorId=57196485539; title: Scopus"
+        width="1.65" height="0.85"
+        material="color:#7a3a11; opacity:0.92; shader:flat"></a-plane>
+      <a-text value="Scopus" align="center" color="#E8EEFC" width="4" position="0 -0.56 0.02"></a-text>
+    </a-entity>
+
+    <!-- Lights -->
+    <a-entity light="type:ambient; intensity:0.65"></a-entity>
     <a-entity light="type:directional; intensity:0.9" position="3 6 2"></a-entity>
   </a-scene>
+
+  <script>
+    // Autoplay attempt for video texture: requires gesture in many mobile browsers
+    const vid = document.querySelector('#projVideo');
+    const scene = document.querySelector('a-scene');
+
+    function tryPlay(){
+      if (!vid) return;
+      vid.muted = true;
+      const p = vid.play();
+      if (p && p.catch) p.catch(()=>{});
+    }
+    scene.addEventListener('loaded', tryPlay);
+    window.addEventListener('click', tryPlay, { once: true });
+    window.addEventListener('touchstart', tryPlay, { once: true });
+  </script>
 </body>
 </html>
