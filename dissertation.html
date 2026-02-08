@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Riset S3 — Disertasi & Hasil Penelitian</title>
+  <meta name="description" content="Halaman ringkas untuk menceritakan penelitian S3, menampilkan hasil, foto, dan tombol unduh disertasi serta ijazah." />
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --panel:#111826;
+      --panel2:#0f1622;
+      --text:#e8eef7;
+      --muted:#a9b4c4;
+      --line:#223043;
+      --accent:#3fb3ff;
+      --accent2:#8b5cf6;
+      --ok:#22c55e;
+      --shadow: 0 16px 40px rgba(0,0,0,.35);
+      --r:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:
+        radial-gradient(900px 500px at 20% 10%, rgba(63,179,255,.20), transparent 60%),
+        radial-gradient(900px 500px at 80% 0%, rgba(139,92,246,.18), transparent 55%),
+        linear-gradient(180deg, #081019, var(--bg));
+    }
+    a{color:inherit}
+    .wrap{max-width:1100px;margin:0 auto;padding:28px 18px 60px}
+    .topbar{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter: blur(10px);
+      background: rgba(11,15,20,.72);
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .topbar .wrap{padding:14px 18px}
+    .nav{
+      display:flex; align-items:center; justify-content:space-between; gap:14px;
+    }
+    .brand{display:flex; align-items:center; gap:12px}
+    .mark{
+      width:40px;height:40px;border-radius:14px;
+      background: linear-gradient(135deg, rgba(63,179,255,.95), rgba(139,92,246,.95));
+      box-shadow: var(--shadow);
+    }
+    .brand h1{font-size:14px; margin:0; letter-spacing:.2px}
+    .brand p{margin:2px 0 0; font-size:12px; color:var(--muted)}
+    .navlinks{display:flex; flex-wrap:wrap; gap:10px; justify-content:flex-end}
+    .navlinks a{
+      text-decoration:none;
+      font-size:12px;
+      color:var(--muted);
+      padding:8px 10px;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:999px;
+      background: rgba(255,255,255,.03);
+    }
+    .navlinks a:hover{border-color: rgba(63,179,255,.45); color:var(--text)}
+    header.hero{
+      margin-top:18px;
+      display:grid; grid-template-columns: 1.2fr .8fr; gap:18px;
+      align-items:stretch;
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+    }
+    .hero-left{padding:22px}
+    .kicker{
+      display:inline-flex; align-items:center; gap:8px;
+      font-size:12px; color:var(--muted);
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.03);
+      padding:8px 10px; border-radius:999px;
+    }
+    .dot{width:8px;height:8px;border-radius:99px;background:var(--ok)}
+    .hero-left h2{
+      margin:14px 0 8px;
+      font-size:28px;
+      line-height:1.15;
+      letter-spacing:.2px;
+    }
+    .hero-left p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.6;
+      font-size:14px;
+    }
+    .cta{
+      margin-top:16px;
+      display:flex; flex-wrap:wrap; gap:10px;
+    }
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      text-decoration:none;
+      padding:11px 14px;
+      border-radius: 12px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      font-size:13px;
+      color:var(--text);
+      cursor:pointer;
+    }
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(63,179,255,.95), rgba(139,92,246,.90));
+      border-color: rgba(255,255,255,.16);
+    }
+    .btn:hover{transform: translateY(-1px)}
+    .hero-right{
+      overflow:hidden;
+      display:flex; flex-direction:column;
+    }
+    .profile{
+      padding:18px;
+      display:grid; grid-template-columns: 64px 1fr; gap:12px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    .avatar{
+      width:64px;height:64px;border-radius:16px;
+      background: #0b1320;
+      border:1px solid rgba(255,255,255,.08);
+      overflow:hidden;
+    }
+    .avatar img{width:100%; height:100%; object-fit:cover; display:block}
+    .profile h3{margin:2px 0 2px; font-size:14px}
+    .profile .meta{margin:0; font-size:12px; color:var(--muted); line-height:1.5}
+    .quick{
+      padding:16px 18px;
+      display:grid; gap:10px;
+    }
+    .qitem{
+      display:flex; gap:10px; align-items:flex-start;
+      padding:10px 12px;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:14px;
+      background: rgba(255,255,255,.02);
+    }
+    .qicon{
+      width:28px;height:28px;border-radius:10px;
+      background: rgba(63,179,255,.18);
+      border:1px solid rgba(63,179,255,.25);
+      display:flex; align-items:center; justify-content:center;
+      flex:0 0 auto;
+      font-size:14px;
+    }
+    section{margin-top:18px}
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:18px;
+    }
+    .section-card{padding:18px}
+    .section-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      letter-spacing:.2px;
+    }
+    .section-card p{margin:0; color:var(--muted); line-height:1.65; font-size:13px}
+    .list{
+      margin:12px 0 0;
+      padding:0;
+      list-style:none;
+      display:grid; gap:10px;
+    }
+    .list li{
+      padding:10px 12px;
+      border:1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.02);
+      border-radius:14px;
+      color:var(--text);
+      font-size:13px;
+      line-height:1.5;
+    }
+    .list li span{color:var(--muted)}
+    .results{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:12px;
+      margin-top:12px;
+    }
+    .metric{
+      padding:12px 12px;
+      border:1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.02);
+      border-radius:14px;
+    }
+    .metric .v{font-size:18px; font-weight:700; letter-spacing:.2px}
+    .metric .k{font-size:12px; color:var(--muted); margin-top:2px}
+    .gallery{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap:12px;
+      margin-top:12px;
+    }
+    .ph{
+      border-radius:16px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.02);
+      aspect-ratio: 4/3;
+      position:relative;
+    }
+    .ph img{width:100%; height:100%; object-fit:cover; display:block}
+    .ph .cap{
+      position:absolute; left:10px; right:10px; bottom:10px;
+      font-size:11px;
+      color:rgba(255,255,255,.92);
+      background: rgba(0,0,0,.45);
+      border:1px solid rgba(255,255,255,.12);
+      padding:6px 8px;
+      border-radius:12px;
+      backdrop-filter: blur(6px);
+    }
+    .wide{
+      grid-column: 1 / -1;
+    }
+    .timeline{
+      margin-top:12px;
+      display:grid; gap:10px;
+    }
+    .trow{
+      display:grid;
+      grid-template-columns: 120px 1fr;
+      gap:12px;
+      padding:10px 12px;
+      border:1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.02);
+      border-radius:14px;
+      align-items:start;
+    }
+    .trow .date{font-size:12px; color:var(--muted)}
+    .trow .txt{font-size:13px; line-height:1.55}
+    footer{
+      margin-top:26px;
+      color:var(--muted);
+      font-size:12px;
+      text-align:center;
+    }
+    @media (max-width: 920px){
+      header.hero{grid-template-columns: 1fr}
+      .grid{grid-template-columns:1fr}
+      .results{grid-template-columns:1fr}
+      .gallery{grid-template-columns: repeat(2, 1fr)}
+      .trow{grid-template-columns: 1fr}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="topbar">
+    <div class="wrap">
+      <div class="nav">
+        <div class="brand">
+          <div class="mark" aria-hidden="true"></div>
+          <div>
+            <h1>Riset S3 — Disertasi & Hasil Penelitian</h1>
+            <p>Ringkasan, metodologi, hasil, galeri, dan berkas unduhan</p>
+          </div>
+        </div>
+        <div class="navlinks">
+          <a href="#ringkasan">Ringkasan</a>
+          <a href="#metode">Metode</a>
+          <a href="#hasil">Hasil</a>
+          <a href="#galeri">Galeri</a>
+          <a href="#publikasi">Publikasi</a>
+          <a href="#unduh">Unduh</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <header class="hero">
+      <div class="card hero-left">
+        <div class="kicker"><span class="dot"></span>Doktor (S3) • Geodesy & Geomatics • Digital Twin / BIM / 3D</div>
+        <h2>Judul Disertasi Anda di sini</h2>
+        <p>
+          Tulis narasi singkat (3–5 kalimat) tentang konteks riset: masalah yang diselesaikan, gap penelitian,
+          dan kontribusi utama. Contoh: integrasi akuisisi data 3D (TLS/photogrammetry) ke dalam model BIM/DT,
+          validasi akurasi, serta implementasi visualisasi/analitik berbasis web untuk pelestarian/asset management.
+        </p>
+
+        <div class="cta" id="unduh">
+          <!-- GANTI path file sesuai folder Anda -->
+          <a class="btn primary" href="downloads/disertasi.pdf" download>
+            ⬇️ Download Disertasi (PDF)
+          </a>
+          <a class="btn" href="downloads/ijazah.pdf" download>
+            ⬇️ Download Ijazah (PDF)
+          </a>
+          <a class="btn" href="#galeri">
+            🖼️ Lihat Galeri Hasil
+          </a>
+        </div>
+
+        <div class="results" aria-label="Ringkasan metrik hasil riset">
+          <div class="metric">
+            <div class="v">± XX cm</div>
+            <div class="k">Akurasi (contoh: RMSE)</div>
+          </div>
+          <div class="metric">
+            <div class="v">X lokasi</div>
+            <div class="k">Studi kasus / situs</div>
+          </div>
+          <div class="metric">
+            <div class="v">X modul</div>
+            <div class="k">Pipeline / prototipe sistem</div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="card hero-right">
+        <div class="profile">
+          <div class="avatar">
+            <!-- GANTI foto profil -->
+            <img src="assets/img/profile.jpg" alt="Foto peneliti" />
+          </div>
+          <div>
+            <h3>Nama Anda</h3>
+            <p class="meta">
+              Program Doktor • Universitas • Tahun Lulus<br/>
+              Topik: Digital Twin / Dynamic BIM / 3D GIS / TLS / Photogrammetry
+            </p>
+          </div>
+        </div>
+        <div class="quick">
+          <div class="qitem">
+            <div class="qicon">🎯</div>
+            <div>
+              <div style="font-size:13px; font-weight:650;">Tujuan Riset</div>
+              <div style="font-size:12px; color:var(--muted); line-height:1.55;">
+                Jelaskan 1–2 tujuan utama yang measurable.
+              </div>
+            </div>
+          </div>
+          <div class="qitem">
+            <div class="qicon">🧪</div>
+            <div>
+              <div style="font-size:13px; font-weight:650;">Kontribusi</div>
+              <div style="font-size:12px; color:var(--muted); line-height:1.55;">
+                Misal: metode integrasi data 3D → BIM/DT, skema semantik, pipeline otomatis, evaluasi akurasi.
+              </div>
+            </div>
+          </div>
+          <div class="qitem">
+            <div class="qicon">🧩</div>
+            <div>
+              <div style="font-size:13px; font-weight:650;">Output</div>
+              <div style="font-size:12px; color:var(--muted); line-height:1.55;">
+                Misal: dataset, prototipe web viewer, publikasi jurnal/konferensi, pedoman implementasi.
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </header>
+
+    <section id="ringkasan" class="grid">
+      <div class="card section-card">
+        <h3>Ringkasan Penelitian</h3>
+        <p>
+          Tuliskan ringkasan 1–2 paragraf: latar belakang, urgensi, gap riset, dan pendekatan yang Anda ambil.
+          Cantumkan konteks (mis. pelestarian cagar budaya, manajemen aset, monitoring pascabencana, dll).
+        </p>
+        <ul class="list">
+          <li><b>Masalah:</b> <span>contoh: akuisisi 3D dan BIM belum terhubung semantik dan sulit dipakai untuk analitik.</span></li>
+          <li><b>Hipotesis:</b> <span>contoh: pipeline terintegrasi + validasi metrik meningkatkan reusability & akurasi.</span></li>
+          <li><b>Kontribusi utama:</b> <span>contoh: skema data + pipeline otomatis + prototipe DT.</span></li>
+        </ul>
+      </div>
+
+      <div class="card section-card">
+        <h3>Lingkup & Studi Kasus</h3>
+        <p>
+          Sebutkan lokasi/objek studi kasus, jenis data yang digunakan, skala (artefak—monumen—kawasan),
+          dan batasan (limitations).
+        </p>
+        <ul class="list">
+          <li><b>Objek:</b> <span>contoh: bangunan/heritage site/area kampus/kawasan kota.</span></li>
+          <li><b>Data:</b> <span>TLS / SLAM / UAV LiDAR / Photogrammetry / ETS / GNSS.</span></li>
+          <li><b>Output:</b> <span>mesh/point cloud → BIM/IFC → DT dashboard/web viewer.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="metode" class="card section-card">
+      <h3>Metodologi & Alur Kerja</h3>
+      <p>
+        Jelaskan alur riset Anda dari end-to-end. Di bawah ini contoh struktur yang umum:
+      </p>
+
+      <ul class="list">
+        <li><b>1) Akuisisi Data:</b> <span>TLS / photogrammetry / UAV LiDAR; desain jaringan kontrol & GCP (jika ada).</span></li>
+        <li><b>2) Pra-pemrosesan:</b> <span>registrasi point cloud, filtering, outlier removal, georeferencing.</span></li>
+        <li><b>3) Rekonstruksi Model:</b> <span>mesh generation, segmentation, BIM authoring, semantik (komponen, material, kondisi).</span></li>
+        <li><b>4) Integrasi & Penyajian:</b> <span>IFC/BIM–GIS integration, database, web viewer/DT dashboard, AR/VR (opsional).</span></li>
+        <li><b>5) Validasi:</b> <span>RMSE/ICP residual, perbandingan terhadap pengukuran kontrol (ETS/tape), uji repeatability.</span></li>
+      </ul>
+
+      <div class="timeline">
+        <div class="trow">
+          <div class="date">Tahun 1</div>
+          <div class="txt"><b>Studi literatur & desain metodologi</b> — definisi gap, desain eksperimen, pengumpulan data awal.</div>
+        </div>
+        <div class="trow">
+          <div class="date">Tahun 2</div>
+          <div class="txt"><b>Akuisisi data utama</b> — kampanye pengukuran, registrasi, rekonstruksi model awal.</div>
+        </div>
+        <div class="trow">
+          <div class="date">Tahun 3</div>
+          <div class="txt"><b>Integrasi DT & evaluasi</b> — prototipe sistem, validasi, analisis hasil, penyusunan disertasi.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="hasil" class="grid">
+      <div class="card section-card">
+        <h3>Hasil Utama</h3>
+        <p>
+          Tulis poin-poin hasil yang benar-benar “claimable” (terukur). Ganti contoh di bawah sesuai hasil Anda.
+        </p>
+        <ul class="list">
+          <li><b>Rekonstruksi 3D:</b> <span>model detail dengan tingkat kelengkapan komponen X% (atau sesuai).</span></li>
+          <li><b>Validasi akurasi:</b> <span>RMSE horizontal/vertikal ±XX cm terhadap kontrol.</span></li>
+          <li><b>Dynamic BIM/DT:</b> <span>integrasi atribut kondisi/monitoring dan visualisasi web interaktif.</span></li>
+          <li><b>Implementasi:</b> <span>pipeline semi-otomatis/otomatis untuk konversi dan publikasi model.</span></li>
+        </ul>
+      </div>
+
+      <div class="card section-card">
+        <h3>Highlight Visual</h3>
+        <p>
+          Sisipkan gambar ringkas seperti: (1) point cloud, (2) model BIM/IFC, (3) dashboard digital twin,
+          (4) AR/VR preview. Gunakan 1 gambar utama di sini.
+        </p>
+
+        <div class="ph" style="margin-top:12px; aspect-ratio: 16/9;">
+          <!-- GANTI gambar -->
+          <img src="assets/img/hero_result.jpg" alt="Gambar hasil utama penelitian" />
+          <div class="cap">Gambar utama: hasil integrasi (contoh: point cloud → BIM → Digital Twin)</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="galeri" class="card section-card">
+      <h3>Galeri Foto & Hasil Penelitian</h3>
+      <p>
+        Tambahkan foto lapangan, screenshot proses, dan hasil akhir. Ganti nama file sesuai aset Anda.
+      </p>
+
+      <div class="gallery" role="list">
+        <div class="ph" role="listitem">
+          <img src="assets/img/gallery_01.jpg" alt="Akuisisi data lapangan" />
+          <div class="cap">Akuisisi data (TLS/UAV/SLAM)</div>
+        </div>
+        <div class="ph" role="listitem">
+          <img src="assets/img/gallery_02.jpg" alt="Point cloud terdaftar" />
+          <div class="cap">Registrasi & georeferencing</div>
+        </div>
+        <div class="ph" role="listitem">
+          <img src="assets/img/gallery_03.jpg" alt="Segmentasi / pemodelan" />
+          <div class="cap">Segmentasi / pemodelan BIM</div>
+        </div>
+        <div class="ph" role="listitem">
+          <img src="assets/img/gallery_04.jpg" alt="Digital twin dashboard" />
+          <div class="cap">Dashboard Digital Twin</div>
+        </div>
+
+        <div class="ph wide" role="listitem" style="aspect-ratio: 21/9;">
+          <img src="assets/img/gallery_wide.jpg" alt="Kolase hasil penelitian" />
+          <div class="cap">Kolase: perbandingan sebelum-sesudah / multi-output (BIM, GIS, AR/VR)</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="publikasi" class="grid">
+      <div class="card section-card">
+        <h3>Publikasi, Dataset, & Demo</h3>
+        <p>Masukkan daftar publikasi (jurnal/konferensi), dataset, dan link demo (jika ada).</p>
+        <ul class="list">
+          <li><b>Jurnal 1:</b> <span>Judul — Nama jurnal, tahun.</span></li>
+          <li><b>Konferensi:</b> <span>Judul — Nama konferensi, tahun.</span></li>
+          <li><b>Dataset/Code:</b> <span>Repo/DOI (opsional).</span></li>
+        </ul>
+      </div>
+
+      <div class="card section-card">
+        <h3>Kontak</h3>
+        <p>Tambahkan info kontak profesional Anda.</p>
+        <ul class="list">
+          <li><b>Nama:</b> <span>Dr. …</span></li>
+          <li><b>Email:</b> <span>email@domain.com</span></li>
+          <li><b>Affiliation:</b> <span>Universitas / Institusi</span></li>
+        </ul>
+
+        <div class="cta" style="margin-top:12px;">
+          <a class="btn" href="downloads/cv.pdf" download>⬇️ Download CV (opsional)</a>
+          <a class="btn" href="#unduh">⬆️ Ke tombol unduh</a>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      © <span id="y"></span> — Halaman Riset S3. Dibuat untuk portofolio akademik.
+    </footer>
+  </main>
+
+  <script>
+    // Tahun otomatis
+    document.getElementById('y').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
