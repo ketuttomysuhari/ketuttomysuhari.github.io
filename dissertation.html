@@ -4,534 +4,391 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Portofolio Riset S3 — Disertasi & Hasil Penelitian</title>
-  <meta name="description" content="Portofolio riset S3: ringkasan, metodologi, hasil, galeri, publikasi, dan unduhan disertasi serta ijazah." />
+  <meta name="description" content="Portofolio riset S3: ringkasan, metode, hasil, galeri, publikasi, dan unduhan disertasi serta ijazah." />
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
   <style>
     :root{
-      --bg:#f6f7fb;
-      --paper:#ffffff;
+      --bg: #f7f8fc;
       --ink:#1f2937;
       --muted:#6b7280;
       --line:#e5e7eb;
       --accent:#2563eb;
-      --accent2:#0ea5e9;
-      --soft:#eff6ff;
-      --shadow: 0 10px 24px rgba(15, 23, 42, .08);
-      --r:18px;
-      --max: 1080px;
     }
 
-    *{box-sizing:border-box}
-    html,body{height:100%}
     body{
-      margin:0;
-      font-family: Georgia, "Times New Roman", Times, serif;
-      color:var(--ink);
+      color: var(--ink);
       background:
-        radial-gradient(900px 420px at 15% 5%, rgba(37,99,235,.12), transparent 55%),
-        radial-gradient(900px 420px at 85% 0%, rgba(14,165,233,.10), transparent 55%),
+        radial-gradient(900px 420px at 15% 5%, rgba(37,99,235,.10), transparent 55%),
+        radial-gradient(900px 420px at 85% 0%, rgba(14,165,233,.08), transparent 55%),
         var(--bg);
     }
 
-    a{color:var(--accent); text-decoration:none}
-    a:hover{text-decoration:underline}
-    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 64px}
-
-    /* Simple top navigation (portfolio-like) */
-    .top{
-      background: rgba(255,255,255,.75);
-      border:1px solid var(--line);
-      border-radius: 999px;
-      padding:10px 14px;
-      box-shadow: var(--shadow);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      position: sticky;
-      top: 14px;
-      z-index: 10;
+    .navbar-blur{
+      background: rgba(255,255,255,.85);
       backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(0,0,0,.06);
     }
 
-    .top .name{
-      display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
-    }
-    .top .name strong{font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial; font-size:14px}
-    .top .name span{font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial; font-size:12px; color:var(--muted)}
-
-    .nav{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end}
-    .nav a{
-      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-      font-size:12px;
-      color:var(--muted);
-      padding:7px 10px;
-      border-radius:999px;
-      border:1px solid transparent;
-    }
-    .nav a:hover{
-      color:var(--ink);
-      border-color: var(--line);
-      background: #fff;
-      text-decoration:none;
-    }
-
-    /* Hero */
     .hero{
-      margin-top:18px;
-      display:grid;
-      grid-template-columns: 1.1fr .9fr;
-      gap:18px;
-      align-items:stretch;
-    }
-    .card{
-      background: var(--paper);
-      border: 1px solid var(--line);
-      border-radius: var(--r);
-      box-shadow: var(--shadow);
-    }
-    .hero-left{padding:22px 22px 18px}
-    .tag{
-      display:inline-block;
-      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-      font-size:12px;
-      color:#0b2b6d;
-      background: var(--soft);
-      border:1px solid rgba(37,99,235,.18);
-      padding:7px 10px;
-      border-radius:999px;
-    }
-    h1{
-      margin:12px 0 8px;
-      font-size:34px;
-      line-height:1.15;
-      letter-spacing:.2px;
-    }
-    .lead{
-      margin:0;
-      color:var(--muted);
-      font-size:16px;
-      line-height:1.7;
+      background: #fff;
+      border: 1px solid rgba(0,0,0,.06);
+      border-radius: 1.25rem;
+      overflow: hidden;
+      box-shadow: 0 14px 30px rgba(15,23,42,.08);
     }
 
-    .cta{
-      margin-top:14px;
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
+    .hero-bg{
+      background:
+        linear-gradient(135deg, rgba(37,99,235,.10), rgba(14,165,233,.06)),
+        url("assets/img/hero_cover.jpg") center/cover no-repeat;
+      min-height: 220px;
     }
-    .btn{
-      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-      font-size:13px;
-      padding:10px 12px;
-      border-radius: 12px;
-      border:1px solid var(--line);
+
+    .section-card{
       background:#fff;
-      color:var(--ink);
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      box-shadow: 0 6px 16px rgba(15,23,42,.06);
+      border:1px solid rgba(0,0,0,.06);
+      border-radius: 1.25rem;
+      box-shadow: 0 10px 24px rgba(15,23,42,.06);
     }
-    .btn.primary{
-      border-color: rgba(37,99,235,.25);
-      background: linear-gradient(180deg, rgba(37,99,235,.08), rgba(37,99,235,.03));
+
+    .badge-soft{
       color:#0b2b6d;
-    }
-    .btn:hover{text-decoration:none; transform: translateY(-1px)}
-
-    .kpis{
-      margin-top:14px;
-      display:grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap:10px;
-    }
-    .kpi{
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:10px 12px;
-      background:#fff;
-    }
-    .kpi .v{
-      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-      font-weight:700;
-      font-size:16px;
-    }
-    .kpi .k{
-      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-      font-size:12px; color:var(--muted); margin-top:2px;
+      background: rgba(37,99,235,.10);
+      border: 1px solid rgba(37,99,235,.18);
+      font-weight: 600;
     }
 
-    .hero-right{padding:18px}
-    .profile{
-      display:grid;
-      grid-template-columns: 84px 1fr;
-      gap:14px;
-      align-items:center;
-    }
+    .text-muted2{ color: var(--muted) !important; }
+
     .avatar{
-      width:84px;height:84px;border-radius:16px;
-      overflow:hidden;border:1px solid var(--line);
-      background:#fafafa;
-    }
-    .avatar img{width:100%;height:100%;object-fit:cover;display:block}
-    .pname{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-      font-size:14px;
-      letter-spacing:.2px;
-    }
-    .pmeta{
-      margin:6px 0 0;
-      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-      font-size:12px;
-      color:var(--muted);
-      line-height:1.6;
-    }
-    .mini{
-      margin-top:14px;
-      border-top:1px solid var(--line);
-      padding-top:14px;
-      display:grid;
-      gap:10px;
-    }
-    .mini .item{
-      padding:10px 12px;
-      border:1px solid var(--line);
-      border-radius:14px;
-      background:#fff;
-    }
-    .mini .item b{
-      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-      font-size:12px;
-    }
-    .mini .item p{
-      margin:6px 0 0;
-      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-      font-size:12px;
-      color:var(--muted);
-      line-height:1.55;
-    }
-
-    /* Sections */
-    section{margin-top:18px}
-    .section{
-      padding:18px 20px;
-    }
-    .section h2{
-      margin:0 0 10px;
-      font-size:22px;
-    }
-    .section p{margin:0; color:var(--muted); font-size:15px; line-height:1.8}
-
-    .cols{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:18px;
-      align-items:start;
-    }
-
-    .bullets{
-      margin:12px 0 0;
-      padding-left:18px;
-      color:var(--ink);
-    }
-    .bullets li{margin:8px 0; color:var(--ink)}
-    .bullets span{color:var(--muted)}
-
-    /* Featured image */
-    .figure{
-      margin-top:12px;
-      border:1px solid var(--line);
-      border-radius:16px;
-      overflow:hidden;
-      background:#fff;
-    }
-    .figure img{width:100%; display:block; height:auto}
-    .figcap{
-      padding:10px 12px;
-      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-      font-size:12px;
-      color:var(--muted);
-      border-top:1px solid var(--line);
+      width: 88px;
+      height: 88px;
+      border-radius: 1rem;
+      object-fit: cover;
+      border: 1px solid rgba(0,0,0,.08);
       background:#fafafa;
     }
 
-    /* Gallery */
-    .gallery{
-      margin-top:12px;
-      display:grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap:12px;
-    }
-    .thumb{
-      border:1px solid var(--line);
-      border-radius:16px;
-      overflow:hidden;
-      background:#fff;
-    }
-    .thumb img{width:100%; height:220px; object-fit:cover; display:block}
-    .thumb .cap{
-      padding:10px 12px;
-      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-      font-size:12px;
-      color:var(--muted);
-      border-top:1px solid var(--line);
-      background:#fafafa;
+    .kpi{
+      border: 1px solid rgba(0,0,0,.07);
+      border-radius: 1rem;
+      background: #fff;
     }
 
-    /* Publications list */
-    .pub{
-      margin-top:12px;
-      display:grid;
-      gap:10px;
-    }
-    .pub .row{
-      padding:12px 12px;
-      border:1px solid var(--line);
-      border-radius:14px;
-      background:#fff;
-      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-      font-size:13px;
-      line-height:1.55;
-    }
-    .pub .row b{color:var(--ink)}
-    .pub .row em{color:var(--muted)}
-
-    footer{
-      margin-top:28px;
-      text-align:center;
-      color:var(--muted);
-      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-      font-size:12px;
+    .kpi .value{
+      font-weight: 700;
+      font-size: 1.05rem;
     }
 
-    @media (max-width: 920px){
-      .hero{grid-template-columns:1fr}
-      .kpis{grid-template-columns:1fr}
-      .cols{grid-template-columns:1fr}
-      .gallery{grid-template-columns:1fr}
-      .thumb img{height:240px}
+    .gallery-img{
+      width: 100%;
+      height: 210px;
+      object-fit: cover;
+      border-top-left-radius: 1rem;
+      border-top-right-radius: 1rem;
     }
+
+    .feature-img{
+      width:100%;
+      height:auto;
+      border-radius: 1rem;
+      border: 1px solid rgba(0,0,0,.08);
+      background: #fff;
+    }
+
+    .btn-accent{
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .btn-accent:hover{
+      filter: brightness(.95);
+    }
+
+    .anchor{ scroll-margin-top: 92px; } /* offset for fixed navbar */
   </style>
 </head>
 
 <body>
-  <div class="wrap">
-    <div class="top">
-      <div class="name">
-        <strong>Portofolio Riset S3</strong>
-        <span>Ringkasan • Hasil • Galeri • Publikasi • Unduhan</span>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-blur sticky-top">
+    <div class="container">
+      <a class="navbar-brand fw-semibold" href="#">Portofolio Riset S3</a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav"
+              aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="nav">
+        <ul class="navbar-nav ms-auto gap-lg-1">
+          <li class="nav-item"><a class="nav-link" href="#ringkasan">Ringkasan</a></li>
+          <li class="nav-item"><a class="nav-link" href="#metode">Metode</a></li>
+          <li class="nav-item"><a class="nav-link" href="#hasil">Hasil</a></li>
+          <li class="nav-item"><a class="nav-link" href="#galeri">Galeri</a></li>
+          <li class="nav-item"><a class="nav-link" href="#publikasi">Publikasi</a></li>
+          <li class="nav-item"><a class="nav-link" href="#unduh">Unduh</a></li>
+        </ul>
       </div>
-      <nav class="nav" aria-label="Navigasi">
-        <a href="#ringkasan">Ringkasan</a>
-        <a href="#metode">Metode</a>
-        <a href="#hasil">Hasil</a>
-        <a href="#galeri">Galeri</a>
-        <a href="#publikasi">Publikasi</a>
-        <a href="#unduh">Unduh</a>
-      </nav>
+    </div>
+  </nav>
+
+  <main class="container py-4 py-lg-5">
+    <!-- Hero -->
+    <section class="hero mb-4 mb-lg-5">
+      <div class="row g-0">
+        <!-- Left: cover -->
+        <div class="col-12 col-lg-5">
+          <div class="hero-bg"></div>
+        </div>
+
+        <!-- Right: content -->
+        <div class="col-12 col-lg-7">
+          <div class="p-4 p-lg-5">
+            <span class="badge badge-soft rounded-pill px-3 py-2">
+              Doktor (S3) • Geodesy & Geomatics • 3D Modelling / BIM / Digital Twin
+            </span>
+
+            <h1 class="mt-3 mb-2 display-6 fw-bold">Judul Disertasi Anda di sini</h1>
+            <p class="text-muted2 mb-4">
+              Tulis 4–6 kalimat gaya portofolio: latar belakang, masalah, kontribusi, dan dampak.
+              Contoh: pipeline pemodelan 3D berbasis TLS/photogrammetry menuju Dynamic BIM/Digital Twin,
+              dengan skema semantik, prototipe web, dan evaluasi akurasi terhadap pengukuran kontrol.
+            </p>
+
+            <!-- Profile + quick info -->
+            <div class="d-flex align-items-start gap-3 mb-3">
+              <img class="avatar" src="assets/img/profile.jpg" alt="Foto profil peneliti">
+              <div>
+                <div class="fw-semibold">Nama Anda</div>
+                <div class="text-muted2 small">
+                  Program Doktor • Universitas • Tahun Lulus<br/>
+                  Fokus: Digital Twin / Dynamic BIM / 3D GIS / TLS / Photogrammetry
+                </div>
+              </div>
+            </div>
+
+            <!-- Downloads -->
+            <div class="d-flex flex-wrap gap-2" id="unduh">
+              <a class="btn btn-accent text-white" href="downloads/disertasi.pdf" download>
+                Download Disertasi (PDF)
+              </a>
+              <a class="btn btn-outline-primary" href="downloads/ijazah.pdf" download>
+                Download Ijazah (PDF)
+              </a>
+              <a class="btn btn-outline-secondary" href="#galeri">
+                Lihat Galeri
+              </a>
+            </div>
+
+            <!-- KPIs -->
+            <div class="row g-2 g-md-3 mt-4">
+              <div class="col-12 col-md-4">
+                <div class="kpi p-3">
+                  <div class="value">± XX cm</div>
+                  <div class="text-muted2 small">Akurasi (mis. RMSE)</div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="kpi p-3">
+                  <div class="value">X lokasi</div>
+                  <div class="text-muted2 small">Studi kasus / situs</div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="kpi p-3">
+                  <div class="value">X output</div>
+                  <div class="text-muted2 small">Model, dataset, prototipe</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ringkasan -->
+    <section id="ringkasan" class="section-card p-4 p-lg-5 mb-4 anchor">
+      <div class="row g-4 align-items-start">
+        <div class="col-12 col-lg-7">
+          <h2 class="h3 fw-bold mb-2">Ringkasan Penelitian</h2>
+          <p class="text-muted2">
+            Tulis ringkasan 1–2 paragraf seperti “Project Overview”.
+            Paragraf 1 untuk konteks & urgensi, paragraf 2 untuk kontribusi & scope.
+          </p>
+
+          <ul class="mt-3">
+            <li><b>Tujuan:</b> <span class="text-muted2">contoh: membangun pipeline 3D → BIM → Digital Twin yang replikasi.</span></li>
+            <li><b>Pertanyaan riset:</b> <span class="text-muted2">contoh: bagaimana akurasi & semantik mempengaruhi utilitas DT?</span></li>
+            <li><b>Batasan:</b> <span class="text-muted2">contoh: batas resolusi, kondisi objek, asumsi model.</span></li>
+          </ul>
+        </div>
+
+        <div class="col-12 col-lg-5">
+          <img class="feature-img" src="assets/img/overview.jpg" alt="Ilustrasi alur penelitian">
+          <div class="text-muted2 small mt-2">
+            Gambar ringkas alur: akuisisi → pemodelan → integrasi → validasi → aplikasi.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Metode + Hasil -->
+    <div class="row g-4 mb-4">
+      <section id="metode" class="col-12 col-lg-6 anchor">
+        <div class="section-card p-4 p-lg-5 h-100">
+          <h2 class="h3 fw-bold mb-2">Metodologi</h2>
+          <p class="text-muted2">Susun langkah end-to-end (sesuaikan istilah sesuai riset Anda).</p>
+
+          <ol class="mt-3">
+            <li><b>Akuisisi data:</b> <span class="text-muted2">TLS / UAV LiDAR / photogrammetry; kontrol & GCP (jika ada).</span></li>
+            <li><b>Pra-pemrosesan:</b> <span class="text-muted2">registrasi, filtering, georeferencing, QC.</span></li>
+            <li><b>Pemodelan & semantik:</b> <span class="text-muted2">segmentasi, BIM authoring, atribut komponen/kondisi.</span></li>
+            <li><b>Integrasi & visualisasi:</b> <span class="text-muted2">IFC/BIM–GIS, database, web viewer/DT dashboard.</span></li>
+            <li><b>Validasi:</b> <span class="text-muted2">RMSE/residual, perbandingan kontrol (ETS/tape), repeatability.</span></li>
+          </ol>
+        </div>
+      </section>
+
+      <section id="hasil" class="col-12 col-lg-6 anchor">
+        <div class="section-card p-4 p-lg-5 h-100">
+          <h2 class="h3 fw-bold mb-2">Hasil Utama</h2>
+          <p class="text-muted2">
+            Tulis klaim hasil yang “measurable”. Contoh di bawah silakan diganti.
+          </p>
+
+          <ul class="mt-3">
+            <li><b>Model 3D & BIM:</b> <span class="text-muted2">kelengkapan komponen kunci dan struktur semantik siap pakai.</span></li>
+            <li><b>Akurasi:</b> <span class="text-muted2">RMSE horizontal/vertikal ±XX cm terhadap titik kontrol.</span></li>
+            <li><b>Pipeline:</b> <span class="text-muted2">otomasi konversi (point cloud → BIM/IFC → web viewer).</span></li>
+            <li><b>Aplikasi:</b> <span class="text-muted2">monitoring kondisi, konservasi heritage, asset management.</span></li>
+          </ul>
+
+          <div class="mt-3">
+            <img class="feature-img" src="assets/img/featured_result.jpg" alt="Gambar hasil utama">
+            <div class="text-muted2 small mt-2">
+              Gambar utama: Digital Twin dashboard / BIM model / AR/VR preview.
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
 
-    <header class="hero">
-      <div class="card hero-left">
-        <span class="tag">Doktor (S3) • Geodesy & Geomatics • 3D Modelling / BIM / Digital Twin</span>
-        <h1>Judul Disertasi Anda di sini</h1>
-        <p class="lead">
-          Tulis 4–6 kalimat yang terasa seperti halaman portofolio: konteks, masalah, kontribusi, dan dampaknya.
-          Contoh: pengembangan pipeline pemodelan 3D berbasis TLS/photogrammetry menuju Dynamic BIM/Digital Twin,
-          termasuk skema semantik, implementasi prototipe web, dan evaluasi akurasi terhadap pengukuran kontrol.
-        </p>
-
-        <div class="cta" id="unduh">
-          <!-- GANTI file sesuai nama PDF Anda -->
-          <a class="btn primary" href="downloads/disertasi.pdf" download>⬇️ Unduh Disertasi (PDF)</a>
-          <a class="btn" href="downloads/ijazah.pdf" download>⬇️ Unduh Ijazah (PDF)</a>
-          <a class="btn" href="#galeri">🖼️ Lihat Foto & Hasil</a>
-        </div>
-
-        <div class="kpis" aria-label="Ringkasan metrik riset">
-          <div class="kpi">
-            <div class="v">± XX cm</div>
-            <div class="k">Akurasi (mis. RMSE)</div>
-          </div>
-          <div class="kpi">
-            <div class="v">X situs</div>
-            <div class="k">Studi kasus / lokasi</div>
-          </div>
-          <div class="kpi">
-            <div class="v">X output</div>
-            <div class="k">Model, dataset, prototipe</div>
-          </div>
-        </div>
-      </div>
-
-      <aside class="card hero-right">
-        <div class="profile">
-          <div class="avatar">
-            <img src="assets/img/profile.jpg" alt="Foto profil peneliti" />
-          </div>
-          <div>
-            <p class="pname">Nama Anda</p>
-            <p class="pmeta">
-              Program Doktor • Universitas • Tahun Lulus<br/>
-              Fokus: Digital Twin / Dynamic BIM / 3D GIS / TLS / Photogrammetry
-            </p>
-          </div>
-        </div>
-
-        <div class="mini">
-          <div class="item">
-            <b>Masalah yang disasar</b>
-            <p>Contoh: integrasi data 3D multi-sumber ke BIM/DT masih sulit direproduksi dan kurang standar semantik.</p>
-          </div>
-          <div class="item">
-            <b>Kontribusi inti</b>
-            <p>Contoh: pipeline integrasi + skema atribut + prototipe viewer/DT + evaluasi metrik akurasi & kelengkapan.</p>
-          </div>
-          <div class="item">
-            <b>Manfaat</b>
-            <p>Contoh: mendukung konservasi/asset management, inspeksi kondisi, dokumentasi digital, dan pemanfaatan AR/VR.</p>
-          </div>
-        </div>
-      </aside>
-    </header>
-
-    <section id="ringkasan" class="card section">
-      <h2>Ringkasan Penelitian</h2>
-      <div class="cols">
+    <!-- Galeri -->
+    <section id="galeri" class="section-card p-4 p-lg-5 mb-4 anchor">
+      <div class="d-flex flex-wrap align-items-end justify-content-between gap-2">
         <div>
-          <p>
-            Tulis ringkasan 1–2 paragraf yang rapi, seperti “About this project”.
-            Jelaskan latar belakang, gap, dan scope riset. Hindari terlalu teknis di paragraf pertama,
-            lalu baru detailkan pada paragraf kedua.
-          </p>
+          <h2 class="h3 fw-bold mb-1">Galeri Foto & Dokumentasi</h2>
+          <p class="text-muted2 mb-0">Ganti file gambar sesuai aset Anda.</p>
+        </div>
+        <small class="text-muted2">Tip: kompres JPG/WebP agar cepat</small>
+      </div>
 
-          <ul class="bullets">
-            <li><b>Tujuan:</b> <span>contoh: membangun pipeline 3D → BIM → Digital Twin yang terukur dan replikasi.</span></li>
-            <li><b>Pertanyaan riset:</b> <span>contoh: bagaimana akurasi & semantik mempengaruhi utilitas DT?</span></li>
-            <li><b>Batasan:</b> <span>contoh: kondisi data, area studi, batas resolusi, dan asumsi model.</span></li>
-          </ul>
+      <div class="row g-3 mt-3">
+        <!-- 6 cards -->
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100 border-0 shadow-sm" style="border-radius:1rem; overflow:hidden;">
+            <img class="gallery-img" src="assets/img/gallery_01.jpg" alt="Akuisisi data">
+            <div class="card-body">
+              <div class="fw-semibold">Akuisisi data</div>
+              <div class="text-muted2 small">TLS / UAV / SLAM di lapangan</div>
+            </div>
+          </div>
         </div>
 
-        <div>
-          <div class="figure">
-            <img src="assets/img/overview.jpg" alt="Ilustrasi ringkas alur penelitian" />
-            <div class="figcap">Gambar ringkas: alur penelitian (akuisisi → pemodelan → integrasi → validasi → aplikasi).</div>
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100 border-0 shadow-sm" style="border-radius:1rem; overflow:hidden;">
+            <img class="gallery-img" src="assets/img/gallery_02.jpg" alt="Registrasi point cloud">
+            <div class="card-body">
+              <div class="fw-semibold">Registrasi & QC</div>
+              <div class="text-muted2 small">Registrasi point cloud & evaluasi</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100 border-0 shadow-sm" style="border-radius:1rem; overflow:hidden;">
+            <img class="gallery-img" src="assets/img/gallery_03.jpg" alt="Pemodelan BIM">
+            <div class="card-body">
+              <div class="fw-semibold">Pemodelan BIM</div>
+              <div class="text-muted2 small">BIM/IFC + semantik komponen</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100 border-0 shadow-sm" style="border-radius:1rem; overflow:hidden;">
+            <img class="gallery-img" src="assets/img/gallery_04.jpg" alt="Integrasi BIM-GIS">
+            <div class="card-body">
+              <div class="fw-semibold">Integrasi BIM–GIS</div>
+              <div class="text-muted2 small">Database, layer, dan atribut</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100 border-0 shadow-sm" style="border-radius:1rem; overflow:hidden;">
+            <img class="gallery-img" src="assets/img/gallery_05.jpg" alt="Dashboard Digital Twin">
+            <div class="card-body">
+              <div class="fw-semibold">Digital Twin</div>
+              <div class="text-muted2 small">Viewer / dashboard analitik</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100 border-0 shadow-sm" style="border-radius:1rem; overflow:hidden;">
+            <img class="gallery-img" src="assets/img/gallery_06.jpg" alt="AR/VR Preview">
+            <div class="card-body">
+              <div class="fw-semibold">AR/VR Preview</div>
+              <div class="text-muted2 small">Visualisasi imersif (opsional)</div>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="metode" class="card section">
-      <h2>Metodologi</h2>
-      <p>
-        Susun metodologi dalam alur jelas. Anda bisa menyesuaikan istilah (TLS/SLAM/UAV LiDAR/photogrammetry/IFC/web viewer).
-      </p>
-      <ul class="bullets">
-        <li><b>Akuisisi data:</b> <span>TLS / UAV LiDAR / photogrammetry; pengaturan kontrol & GCP (bila ada).</span></li>
-        <li><b>Pra-pemrosesan:</b> <span>registrasi, filtering, georeferencing, quality check.</span></li>
-        <li><b>Pemodelan & semantik:</b> <span>segmentasi, pemodelan BIM, struktur atribut (komponen, material, kondisi).</span></li>
-        <li><b>Integrasi & visualisasi:</b> <span>IFC/BIM–GIS, database, web viewer / dashboard Digital Twin.</span></li>
-        <li><b>Validasi:</b> <span>RMSE, residual, perbandingan terhadap kontrol (ETS/tape), uji repeatability.</span></li>
-      </ul>
-    </section>
+    <!-- Publikasi -->
+    <section id="publikasi" class="section-card p-4 p-lg-5 anchor">
+      <h2 class="h3 fw-bold mb-2">Publikasi & Luaran</h2>
+      <p class="text-muted2">Isi dengan daftar publikasi, dataset, dan demo. Format dibuat rapi seperti portofolio.</p>
 
-    <section id="hasil" class="card section">
-      <h2>Hasil Penelitian</h2>
-      <div class="cols">
-        <div>
-          <p>
-            Tulis klaim hasil yang bisa dipertanggungjawabkan (angka/metrik). Contoh di bawah silakan diganti.
-          </p>
-          <ul class="bullets">
-            <li><b>Model 3D & BIM:</b> <span>produk final mencakup komponen kunci dan struktur semantik siap pakai.</span></li>
-            <li><b>Akurasi:</b> <span>RMSE horizontal/vertikal ±XX cm terhadap titik kontrol.</span></li>
-            <li><b>Pipeline:</b> <span>otomasi konversi dan publikasi (contoh: point cloud → BIM/IFC → web viewer).</span></li>
-            <li><b>Aplikasi:</b> <span>contoh: monitoring kondisi, dokumentasi heritage, atau asset management.</span></li>
-          </ul>
+      <div class="list-group list-group-flush mt-3">
+        <div class="list-group-item py-3">
+          <div class="fw-semibold">Jurnal 1 — Judul paper</div>
+          <div class="text-muted2 small">Nama jurnal, Tahun. DOI/URL (opsional)</div>
         </div>
+        <div class="list-group-item py-3">
+          <div class="fw-semibold">Jurnal 2 — Judul paper</div>
+          <div class="text-muted2 small">Nama jurnal, Tahun.</div>
+        </div>
+        <div class="list-group-item py-3">
+          <div class="fw-semibold">Konferensi — Judul paper</div>
+          <div class="text-muted2 small">Nama konferensi, Tahun.</div>
+        </div>
+        <div class="list-group-item py-3">
+          <div class="fw-semibold">Dataset / Kode</div>
+          <div class="text-muted2 small">Deskripsi singkat, tautan repo/DOI.</div>
+        </div>
+      </div>
 
-        <div>
-          <div class="figure">
-            <img src="assets/img/featured_result.jpg" alt="Gambar hasil utama penelitian" />
-            <div class="figcap">Gambar utama: hasil akhir (mis. Digital Twin dashboard / BIM model / overlay AR).</div>
-          </div>
-        </div>
+      <div class="d-flex flex-wrap gap-2 mt-4">
+        <a class="btn btn-accent text-white" href="downloads/disertasi.pdf" download>Download Disertasi</a>
+        <a class="btn btn-outline-primary" href="downloads/ijazah.pdf" download>Download Ijazah</a>
+        <a class="btn btn-outline-secondary" href="#top" onclick="window.scrollTo({top:0, behavior:'smooth'}); return false;">Kembali ke atas</a>
       </div>
     </section>
 
-    <section id="galeri" class="card section">
-      <h2>Foto Lapangan & Dokumentasi Hasil</h2>
-      <p>Tambahkan minimal 6 foto: akuisisi data, proses, dan hasil akhir. Ganti nama file sesuai aset Anda.</p>
-
-      <div class="gallery" role="list">
-        <div class="thumb" role="listitem">
-          <img src="assets/img/gallery_01.jpg" alt="Akuisisi data lapangan" />
-          <div class="cap">Akuisisi data (TLS / UAV / SLAM)</div>
-        </div>
-        <div class="thumb" role="listitem">
-          <img src="assets/img/gallery_02.jpg" alt="Registrasi point cloud" />
-          <div class="cap">Registrasi & Quality Check point cloud</div>
-        </div>
-        <div class="thumb" role="listitem">
-          <img src="assets/img/gallery_03.jpg" alt="Pemodelan BIM" />
-          <div class="cap">Pemodelan BIM / IFC & semantik</div>
-        </div>
-        <div class="thumb" role="listitem">
-          <img src="assets/img/gallery_04.jpg" alt="Integrasi BIM-GIS" />
-          <div class="cap">Integrasi BIM–GIS / database</div>
-        </div>
-        <div class="thumb" role="listitem">
-          <img src="assets/img/gallery_05.jpg" alt="Dashboard Digital Twin" />
-          <div class="cap">Dashboard Digital Twin / web viewer</div>
-        </div>
-        <div class="thumb" role="listitem">
-          <img src="assets/img/gallery_06.jpg" alt="AR/VR preview" />
-          <div class="cap">Preview AR/VR (opsional)</div>
-        </div>
-      </div>
-    </section>
-
-    <section id="publikasi" class="card section">
-      <h2>Publikasi & Luaran</h2>
-      <p>Isi daftar publikasi, dataset, dan demo. Formatnya dibuat “portfolio-friendly”.</p>
-
-      <div class="pub">
-        <div class="row">
-          <b>Jurnal 1.</b> Judul paper — <em>Nama Jurnal</em>, Tahun. (DOI/URL jika ada)
-        </div>
-        <div class="row">
-          <b>Jurnal 2.</b> Judul paper — <em>Nama Jurnal</em>, Tahun.
-        </div>
-        <div class="row">
-          <b>Konferensi.</b> Judul paper — <em>Nama Konferensi</em>, Tahun.
-        </div>
-        <div class="row">
-          <b>Dataset / Kode.</b> Deskripsi singkat — <em>GitHub/DOI</em>.
-        </div>
-      </div>
-    </section>
-
-    <section class="card section">
-      <h2>Kontak</h2>
-      <p>
-        <b>Nama:</b> Nama Anda<br/>
-        <b>Email:</b> email@domain.com<br/>
-        <b>Affiliation:</b> Universitas/Institusi<br/>
-        <b>Bidang:</b> 3D modelling, BIM–GIS integration, Digital Twin, photogrammetry, TLS
-      </p>
-      <div class="cta" style="margin-top:12px;">
-        <a class="btn primary" href="#unduh">⬆️ Kembali ke Unduhan</a>
-        <!-- Optional: jika Anda punya CV -->
-        <a class="btn" href="downloads/cv.pdf" download>⬇️ Unduh CV (opsional)</a>
-      </div>
-    </section>
-
-    <footer>
+    <footer class="text-center text-muted2 small mt-4">
       © <span id="y"></span> — Portofolio Riset S3
     </footer>
-  </div>
+  </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     document.getElementById('y').textContent = new Date().getFullYear();
   </script>
