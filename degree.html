@@ -1,3 +1,4 @@
+```html
 <!doctype html>
 <html lang="en">
 <head>
@@ -10,25 +11,45 @@
 
   <style>
     body { background: #f4f6fb; }
-    .doc-frame {
-      width: 100%;
-      height: 72vh;
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      background: #fff;
+
+    .doc-frame{
+      width:100%;
+      height:72vh;
+      border:1px solid #e5e7eb;
+      border-radius:12px;
+      background:#fff;
     }
-    .doc-img {
-      width: 100%;
-      max-height: 72vh;
-      object-fit: contain;
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      background: #fff;
+    .doc-img{
+      width:100%;
+      max-height:72vh;
+      object-fit:contain;
+      border:1px solid #e5e7eb;
+      border-radius:12px;
+      background:#fff;
     }
-    .badge-soft {
-      background: #eef2ff;
-      color: #3730a3;
-      border: 1px solid #e0e7ff;
+    .badge-soft{
+      background:#eef2ff;
+      color:#3730a3;
+      border:1px solid #e0e7ff;
+    }
+
+    /* Responsive: shorter preview on small screens */
+    @media (max-width: 576px){
+      .doc-frame{ height:58vh; }
+      .doc-img{ max-height:58vh; }
+    }
+
+    /* Better "hover" / active feel for pills */
+    .nav-pills .nav-link{
+      border-radius: 12px;
+      transition: transform .08s ease, box-shadow .12s ease, background-color .12s ease;
+    }
+    .nav-pills .nav-link:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+    }
+    .nav-pills .nav-link.active{
+      box-shadow: 0 10px 22px rgba(37, 99, 235, 0.18);
     }
   </style>
 </head>
@@ -47,7 +68,7 @@
 
   <main class="container py-4">
     <div class="row g-4">
-      
+
       <!-- Sidebar -->
       <div class="col-12 col-lg-4">
         <div class="card shadow-sm border-0">
@@ -58,28 +79,37 @@
               Supported formats: <strong>PDF</strong> and <strong>JPG/PNG</strong>.
             </p>
 
-            <ul class="nav nav-pills flex-column gap-2">
+            <!-- Use anchors so links can open directly:
+                 degrees.html#s3, #s2, #ir, #s1 -->
+            <ul class="nav nav-pills flex-column gap-2" id="degreeNav">
               <li class="nav-item">
-                <button class="nav-link active" onclick="renderDoc('s3')">
+                <a class="nav-link active" href="#s3" data-key="s3" id="btn-s3">
                   Doctoral Degree (PhD / S3)
-                </button>
+                </a>
               </li>
               <li class="nav-item">
-                <button class="nav-link" onclick="renderDoc('s2')">
+                <a class="nav-link" href="#s2" data-key="s2" id="btn-s2">
                   Master's Degree (S2)
-                </button>
+                </a>
               </li>
               <li class="nav-item">
-                <button class="nav-link" onclick="renderDoc('ir')">
+                <a class="nav-link" href="#ir" data-key="ir" id="btn-ir">
                   Professional Engineer (Ir.)
-                </button>
+                </a>
               </li>
               <li class="nav-item">
-                <button class="nav-link" onclick="renderDoc('s1')">
+                <a class="nav-link" href="#s1" data-key="s1" id="btn-s1">
                   Bachelor's Degree (S1)
-                </button>
+                </a>
               </li>
             </ul>
+
+            <div class="mt-3 small text-secondary">
+              Direct links:
+              <div class="mt-1">
+                <code>#s3</code>, <code>#s2</code>, <code>#ir</code>, <code>#s1</code>
+              </div>
+            </div>
 
           </div>
         </div>
@@ -90,14 +120,18 @@
         <div class="card shadow-sm border-0">
           <div class="card-body">
 
-            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+            <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between gap-2 mb-3">
               <div>
                 <div class="fw-semibold" id="docTitle">Doctoral Degree (PhD / S3)</div>
                 <div class="text-secondary small" id="docMeta">Format: Auto-detected</div>
               </div>
               <div class="d-flex gap-2">
-                <a class="btn btn-outline-secondary" id="btnOpen" href="#" target="_blank">Open in New Tab</a>
-                <a class="btn btn-primary" id="btnDownload" href="#" download>Download</a>
+                <a class="btn btn-outline-secondary" id="btnOpen" href="#" target="_blank" rel="noopener">
+                  Open in New Tab
+                </a>
+                <a class="btn btn-primary" id="btnDownload" href="#" download>
+                  Download
+                </a>
               </div>
             </div>
 
@@ -127,27 +161,39 @@
     };
 
     const previewArea = document.getElementById("previewArea");
-    const docTitle = document.getElementById("docTitle");
-    const docMeta = document.getElementById("docMeta");
-    const btnOpen = document.getElementById("btnOpen");
+    const docTitle    = document.getElementById("docTitle");
+    const docMeta     = document.getElementById("docMeta");
+    const btnOpen     = document.getElementById("btnOpen");
     const btnDownload = document.getElementById("btnDownload");
     const pdfFallback = document.getElementById("pdfFallback");
+    const degreeNav   = document.getElementById("degreeNav");
 
     function getExtension(url) {
-      return url.split('.').pop().toLowerCase();
+      const clean = url.split("?")[0].split("#")[0];
+      return clean.split(".").pop().toLowerCase();
+    }
+
+    function setActiveNav(key){
+      degreeNav.querySelectorAll(".nav-link").forEach(a => {
+        a.classList.toggle("active", a.dataset.key === key);
+        a.setAttribute("aria-current", a.dataset.key === key ? "page" : "false");
+      });
     }
 
     function renderDoc(key) {
       const doc = DOCS[key];
       if (!doc) return;
 
+      // Sync active/hover style
+      setActiveNav(key);
+
       const ext = getExtension(doc.url);
       docTitle.textContent = doc.title;
-      docMeta.textContent = "Format: " + ext.toUpperCase();
+      docMeta.textContent = "Format: " + (ext ? ext.toUpperCase() : "Unknown");
 
       btnOpen.href = doc.url;
       btnDownload.href = doc.url;
-      btnDownload.setAttribute("download", doc.url);
+      btnDownload.setAttribute("download", doc.url.split("/").pop() || "document");
 
       previewArea.innerHTML = "";
       pdfFallback.classList.add("d-none");
@@ -156,23 +202,63 @@
         const iframe = document.createElement("iframe");
         iframe.className = "doc-frame";
         iframe.src = doc.url;
+        iframe.addEventListener("error", () => pdfFallback.classList.remove("d-none"));
         previewArea.appendChild(iframe);
-      } else if (["jpg","jpeg","png","webp"].includes(ext)) {
+      } else if (["jpg","jpeg","png","webp","gif"].includes(ext)) {
         const img = document.createElement("img");
         img.className = "doc-img";
+        img.alt = doc.title;
         img.src = doc.url;
+        img.onerror = () => {
+          previewArea.innerHTML = `
+            <div class="alert alert-danger mb-0">
+              Failed to load image. Please check the file path: <code>${doc.url}</code>
+            </div>
+          `;
+        };
         previewArea.appendChild(img);
       } else {
         previewArea.innerHTML = `
-          <div class="alert alert-info">
-            Preview not supported for this file type.
+          <div class="alert alert-info mb-0">
+            Preview is not supported for this file type. Please use <b>Open in New Tab</b> or <b>Download</b>.
+            <div class="mt-2 small text-secondary">Path: <code>${doc.url}</code></div>
           </div>
         `;
       }
     }
 
-    renderDoc("s3");
+    // Click handler (keeps URL hash, enables direct linking)
+    degreeNav.addEventListener("click", (e) => {
+      const link = e.target.closest("a.nav-link");
+      if (!link) return;
+      const key = link.dataset.key;
+      if (!key) return;
+
+      // Allow hash update, but render immediately for responsiveness
+      // (No preventDefault needed; hash change is fine)
+      renderDoc(key);
+    });
+
+    // Hash routing: open directly via degrees.html#s2 etc.
+    function renderFromHash(){
+      const hash = (location.hash || "").replace("#", "").trim().toLowerCase();
+      const key = DOCS[hash] ? hash : "s3";
+      renderDoc(key);
+
+      // On small screens, when hash navigation happens, ensure preview is visible
+      // by gently scrolling to the preview panel.
+      if (window.innerWidth < 992) {
+        const previewCard = document.querySelector(".col-12.col-lg-8");
+        previewCard?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+
+    window.addEventListener("hashchange", renderFromHash);
+
+    // Initial
+    renderFromHash();
   </script>
 
 </body>
 </html>
+```
