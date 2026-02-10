@@ -665,7 +665,7 @@
     dom-overlay="root: #domOverlayRoot"
   >
     <a-assets>
-      <img id="skyTex" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/sechelt.jpg" crossorigin="anonymous" />
+      <img id="skyTex" src="https://i0.wp.com/www.samrohn.com/wp-content/uploads/KRADA.jpg?fit=600%2C300" crossorigin="anonymous" />
       <video id="projVideo" src="data/myproject-1.mp4" preload="auto" crossorigin="anonymous" webkit-playsinline playsinline></video>
     </a-assets>
 
@@ -730,6 +730,7 @@
     function tryPlay(){
       if (!vid) return;
       vid.muted = true;
+      vid.loop = true;
       const p = vid.play();
       if (p && p.catch) p.catch(()=>{});
     }
