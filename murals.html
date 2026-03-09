@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cesium Malang Weather Viewer</title>
+
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.120/Build/Cesium/Cesium.js"></script>
+  <link
+    href="https://cesium.com/downloads/cesiumjs/releases/1.120/Build/Cesium/Widgets/widgets.css"
+    rel="stylesheet"
+  />
+
+  <style>
+    html, body, #cesiumContainer {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+
+    .toolbar {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      z-index: 100;
+      width: 280px;
+      background: rgba(20, 20, 30, 0.88);
+      color: #fff;
+      padding: 14px;
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.28);
+      backdrop-filter: blur(8px);
+    }
+
+    .toolbar h3 {
+      margin: 0 0 8px 0;
+      font-size: 18px;
+    }
+
+    .toolbar p {
+      margin: 0 0 10px 0;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #d8d8d8;
+    }
+
+    .toolbar .temp {
+      font-size: 28px;
+      font-weight: bold;
+      margin: 6px 0 4px;
+    }
+
+    .toolbar .condition {
+      font-size: 13px;
+      color: #ffd37a;
+      margin-bottom: 12px;
+    }
+
+    .btn-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 12px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      transition: 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      opacity: 0.95;
+    }
+
+    .btn-main {
+      background: #2d7ff9;
+      color: white;
+    }
+
+    .btn-warm {
+      background: #ff9f43;
+      color: white;
+    }
+
+    .btn-rain {
+      background: #4b7bec;
+      color: white;
+    }
+
+    .btn-fog {
+      background: #95a5a6;
+      color: white;
+    }
+
+    .btn-reset {
+      background: #2f3542;
+      color: white;
+      grid-column: span 2;
+    }
+
+    .legend {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #cfcfcf;
+      border-top: 1px solid rgba(255,255,255,0.12);
+      padding-top: 10px;
+    }
+
+    canvas.weatherCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 20;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <h3>Malang Cesium Viewer</h3>
+    <p>3D Tiles + bangunan + efek cuaca</p>
+
+    <div class="temp" id="tempValue">22°C</div>
+    <div class="condition" id="weatherCondition">Berawan - Kota Malang</div>
+
+    <div class="btn-group">
+      <button class="btn-warm" id="btnSunny">☀️ Panas</button>
+      <button class="btn-rain" id="btnRain">🌧️ Hujan</button>
+      <button class="btn-fog" id="btnFog">🌫️ Berkabut</button>
+      <button class="btn-main" id="btnBuildings">🏢 Bangunan ON/OFF</button>
+      <button class="btn-reset" id="btnReset">Reset Tampilan</button>
+    </div>
+
+    <div class="legend">
+      Asset utama: <b>Ion 4515285</b><br/>
+      Lokasi kamera awal: <b>Kota Malang</b>
+    </div>
+  </div>
+
+  <div id="cesiumContainer"></div>
+  <canvas id="weatherCanvas" class="weatherCanvas"></canvas>
+
+  <script type="module">
+    Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjOWRmOThmYS1iYjhiLTQ4YzgtOTAzMC1hYjE5OGZmZDExMGUiLCJpZCI6MjUyMDkzLCJpYXQiOjE3MzA0MTMxMzB9.oiJJytiAc-uPwL9DTfzg-iulsz8DixZOtWrbtO1K9rI";
+
+    const viewer = new Cesium.Viewer("cesiumContainer", {
+      terrain: Cesium.Terrain.fromWorldTerrain(),
+      animation: false,
+      timeline: false,
+      baseLayerPicker: true,
+      geocoder: true,
+      homeButton: true,
+      sceneModePicker: true,
+      navigationHelpButton: true,
+      infoBox: true,
+      selectionIndicator: true,
+      shouldAnimate: true
+    });
+
+    viewer.scene.globe.depthTestAgainstTerrain = true;
+    viewer.scene.screenSpaceCameraController.enableCollisionDetection = true;
+    viewer.scene.skyAtmosphere.show = true;
+    viewer.scene.fog.enabled = false;
+
+    // =========================
+    // Kamera awal ke Malang
+    // =========================
+    viewer.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(112.6304, -7.9839, 2500),
+      duration: 2
+    });
+
+    // =========================
+    // 3D Tiles utama dari Ion
+    // =========================
+    const mainTileset = viewer.scene.primitives.add(
+      await Cesium.Cesium3DTileset.fromIonAssetId(4515285)
+    );
+
+    // =========================
+    // Layer bangunan OSM
+    // =========================
+    const osmBuildings = viewer.scene.primitives.add(
+      Cesium.createOsmBuildings({
+        style: new Cesium.Cesium3DTileStyle({
+          color: {
+            conditions: [
+              ["${feature['building']} === 'hospital'", "color('red', 0.85)"],
+              ["${feature['building']} === 'school'", "color('yellow', 0.85)"],
+              ["true", "color('white', 0.75)"]
+            ]
+          }
+        })
+      })
+    );
+
+    let buildingsVisible = true;
+
+    // =========================
+    // Efek visual
+    // =========================
+    const scene = viewer.scene;
+    const canvas = document.getElementById("weatherCanvas");
+    const ctx = canvas.getContext("2d");
+
+    function resizeWeatherCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeWeatherCanvas();
+    window.addEventListener("resize", resizeWeatherCanvas);
+
+    let weatherMode = "clear";
+    let rainDrops = [];
+
+    function initRain() {
+      rainDrops = [];
+      for (let i = 0; i < 250; i++) {
+        rainDrops.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          len: 10 + Math.random() * 20,
+          speed: 4 + Math.random() * 8
+        });
+      }
+    }
+
+    function drawRain() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = "rgba(180,220,255,0.7)";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+
+      for (const d of rainDrops) {
+        ctx.moveTo(d.x, d.y);
+        ctx.lineTo(d.x - 3, d.y + d.len);
+        d.y += d.speed;
+        d.x -= 0.4;
+
+        if (d.y > canvas.height) {
+          d.y = -20;
+          d.x = Math.random() * canvas.width;
+        }
+        if (d.x < -20) {
+          d.x = canvas.width + 20;
+        }
+      }
+      ctx.stroke();
+    }
+
+    function clearWeatherCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function setSunnyMode() {
+      weatherMode = "sunny";
+      clearWeatherCanvas();
+
+      scene.fog.enabled = false;
+      scene.skyAtmosphere.hueShift = 0.0;
+      scene.skyAtmosphere.saturationShift = 0.15;
+      scene.skyAtmosphere.brightnessShift = 0.08;
+      scene.postProcessStages.bloom.enabled = true;
+      scene.postProcessStages.bloom.uniforms.glowOnly = false;
+      scene.postProcessStages.bloom.uniforms.contrast = 128;
+      scene.postProcessStages.bloom.uniforms.brightness = -0.15;
+
+      document.getElementById("weatherCondition").textContent = "Panas / Cerah - Kota Malang";
+      document.getElementById("tempValue").textContent = "31°C";
+    }
+
+    function setRainMode() {
+      weatherMode = "rain";
+      initRain();
+
+      scene.fog.enabled = true;
+      scene.fog.density = 0.0018;
+      scene.fog.minimumBrightness = 0.35;
+      scene.skyAtmosphere.hueShift = -0.2;
+      scene.skyAtmosphere.saturationShift = -0.4;
+      scene.skyAtmosphere.brightnessShift = -0.25;
+      scene.postProcessStages.bloom.enabled = false;
+
+      document.getElementById("weatherCondition").textContent = "Hujan - Kota Malang";
+      document.getElementById("tempValue").textContent = "24°C";
+    }
+
+    function setFogMode() {
+      weatherMode = "fog";
+      clearWeatherCanvas();
+
+      scene.fog.enabled = true;
+      scene.fog.density = 0.004;
+      scene.fog.minimumBrightness = 0.2;
+      scene.skyAtmosphere.hueShift = 0.0;
+      scene.skyAtmosphere.saturationShift = -0.7;
+      scene.skyAtmosphere.brightnessShift = -0.35;
+      scene.postProcessStages.bloom.enabled = false;
+
+      document.getElementById("weatherCondition").textContent = "Berkabut - Kota Malang";
+      document.getElementById("tempValue").textContent = "22°C";
+    }
+
+    function resetView() {
+      weatherMode = "clear";
+      clearWeatherCanvas();
+
+      scene.fog.enabled = false;
+      scene.skyAtmosphere.hueShift = 0.0;
+      scene.skyAtmosphere.saturationShift = 0.0;
+      scene.skyAtmosphere.brightnessShift = 0.0;
+      scene.postProcessStages.bloom.enabled = false;
+
+      document.getElementById("weatherCondition").textContent = "Berawan - Kota Malang";
+      document.getElementById("tempValue").textContent = "22°C";
+
+      viewer.flyTo(mainTileset);
+    }
+
+    function animateWeather() {
+      if (weatherMode === "rain") {
+        drawRain();
+      } else {
+        clearWeatherCanvas();
+      }
+      requestAnimationFrame(animateWeather);
+    }
+    animateWeather();
+
+    // =========================
+    // Interaksi tombol
+    // =========================
+    document.getElementById("btnSunny").addEventListener("click", setSunnyMode);
+    document.getElementById("btnRain").addEventListener("click", setRainMode);
+    document.getElementById("btnFog").addEventListener("click", setFogMode);
+    document.getElementById("btnReset").addEventListener("click", resetView);
+
+    document.getElementById("btnBuildings").addEventListener("click", () => {
+      buildingsVisible = !buildingsVisible;
+      osmBuildings.show = buildingsVisible;
+    });
+
+    // =========================
+    // Klik bangunan / feature
+    // =========================
+    const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+
+    handler.setInputAction(function (movement) {
+      const picked = viewer.scene.pick(movement.position);
+
+      if (Cesium.defined(picked) && picked.getProperty) {
+        const name =
+          picked.getProperty("name") ||
+          picked.getProperty("building") ||
+          picked.getProperty("addr:street") ||
+          "Bangunan";
+
+        const height =
+          picked.getProperty("height") ||
+          picked.getProperty("cesium#estimatedHeight") ||
+          "-";
+
+        viewer.selectedEntity = new Cesium.Entity({
+          name: "Informasi Bangunan",
+          description: `
+            <table style="width:100%; border-collapse:collapse;">
+              <tr><td><b>Nama</b></td><td>${name}</td></tr>
+              <tr><td><b>Tinggi</b></td><td>${height}</td></tr>
+              <tr><td><b>Tipe</b></td><td>${picked.getProperty("building") || "-"}</td></tr>
+              <tr><td><b>Alamat</b></td><td>${picked.getProperty("addr:street") || "-"}</td></tr>
+            </table>
+          `
+        });
+      }
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+  </script>
+</body>
+</html>
