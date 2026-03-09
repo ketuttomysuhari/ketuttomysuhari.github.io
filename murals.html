@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cesium Malang Weather Viewer</title>
+  <title>Cesium Smart Viewer</title>
 
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.120/Build/Cesium/Cesium.js"></script>
   <link
@@ -12,153 +12,369 @@
   />
 
   <style>
+    :root {
+      --panel-bg: rgba(15, 18, 30, 0.86);
+      --panel-border: rgba(255,255,255,0.10);
+      --text-main: #ffffff;
+      --text-soft: #cfd8e3;
+      --accent: #4da3ff;
+      --accent-2: #6ee7b7;
+      --warn: #ffb347;
+      --danger: #7db7ff;
+      --fog: #b0b8c5;
+      --shadow: 0 12px 30px rgba(0,0,0,0.28);
+    }
+
     html, body, #cesiumContainer {
       width: 100%;
       height: 100%;
       margin: 0;
       padding: 0;
       overflow: hidden;
-      font-family: Arial, sans-serif;
+      font-family: Inter, Arial, sans-serif;
+      background: #0c1220;
     }
 
-    .toolbar {
+    #cesiumContainer {
       position: absolute;
-      top: 15px;
-      left: 15px;
+      inset: 0;
+    }
+
+    .panel {
+      position: absolute;
+      top: 18px;
+      left: 18px;
       z-index: 100;
-      width: 280px;
-      background: rgba(20, 20, 30, 0.88);
-      color: #fff;
-      padding: 14px;
-      border-radius: 14px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.28);
-      backdrop-filter: blur(8px);
+      width: 320px;
+      background: var(--panel-bg);
+      color: var(--text-main);
+      border: 1px solid var(--panel-border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow: hidden;
     }
 
-    .toolbar h3 {
-      margin: 0 0 8px 0;
+    .panel-header {
+      padding: 16px 16px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .panel-header h2 {
+      margin: 0;
       font-size: 18px;
+      font-weight: 700;
     }
 
-    .toolbar p {
-      margin: 0 0 10px 0;
+    .panel-header p {
+      margin: 6px 0 0;
+      color: var(--text-soft);
       font-size: 13px;
-      line-height: 1.5;
-      color: #d8d8d8;
+      line-height: 1.45;
     }
 
-    .toolbar .temp {
+    .panel-body {
+      padding: 14px 16px 16px;
+    }
+
+    .weather-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .weather-box .left .label {
+      font-size: 12px;
+      color: var(--text-soft);
+      margin-bottom: 4px;
+    }
+
+    .weather-box .left .temp {
       font-size: 28px;
-      font-weight: bold;
-      margin: 6px 0 4px;
+      font-weight: 800;
+      line-height: 1;
     }
 
-    .toolbar .condition {
+    .weather-box .right {
+      text-align: right;
       font-size: 13px;
-      color: #ffd37a;
-      margin-bottom: 12px;
+      color: #ffe39b;
+      line-height: 1.4;
     }
 
-    .btn-group {
+    .section-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-soft);
+      margin: 14px 0 10px;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .input-group input {
+      flex: 1;
+      min-width: 0;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.06);
+      color: white;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .input-group input::placeholder {
+      color: rgba(255,255,255,0.45);
+    }
+
+    .btn-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
-      margin-top: 10px;
     }
 
     button {
       border: none;
-      border-radius: 10px;
-      padding: 10px 12px;
+      border-radius: 12px;
+      padding: 11px 12px;
       cursor: pointer;
-      font-weight: 600;
+      font-weight: 700;
       font-size: 13px;
       transition: 0.2s ease;
     }
 
     button:hover {
       transform: translateY(-1px);
-      opacity: 0.95;
+      opacity: 0.96;
     }
 
-    .btn-main {
-      background: #2d7ff9;
-      color: white;
-    }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-sunny   { background: #ff9f43; color: white; }
+    .btn-rain    { background: #4b7bec; color: white; }
+    .btn-fog     { background: #95a5a6; color: white; }
+    .btn-dark    { background: #1f2937; color: white; }
+    .btn-green   { background: #10b981; color: white; }
+    .btn-wide    { grid-column: span 2; }
 
-    .btn-warm {
-      background: #ff9f43;
-      color: white;
-    }
-
-    .btn-rain {
-      background: #4b7bec;
-      color: white;
-    }
-
-    .btn-fog {
-      background: #95a5a6;
-      color: white;
-    }
-
-    .btn-reset {
-      background: #2f3542;
-      color: white;
-      grid-column: span 2;
-    }
-
-    .legend {
+    .status-box {
       margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.05);
       font-size: 12px;
-      color: #cfcfcf;
-      border-top: 1px solid rgba(255,255,255,0.12);
-      padding-top: 10px;
+      color: var(--text-soft);
+      line-height: 1.5;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      font-size: 11px;
+      border-radius: 999px;
+      background: rgba(77,163,255,0.18);
+      color: #dbeafe;
+      margin-top: 6px;
+    }
+
+    .bottom-info {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      font-size: 12px;
+      color: var(--text-soft);
+      line-height: 1.6;
     }
 
     canvas.weatherCanvas {
       position: absolute;
-      top: 0;
-      left: 0;
+      inset: 0;
       z-index: 20;
       pointer-events: none;
+    }
+
+    .floating-chip {
+      position: absolute;
+      right: 18px;
+      top: 18px;
+      z-index: 99;
+      background: rgba(15,18,30,0.82);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-size: 13px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    .floating-chip strong {
+      color: #93c5fd;
+    }
+
+    @media (max-width: 768px) {
+      .panel {
+        width: calc(100% - 24px);
+        left: 12px;
+        top: 12px;
+      }
+
+      .floating-chip {
+        right: 12px;
+        top: auto;
+        bottom: 12px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="toolbar">
-    <h3>Malang Cesium Viewer</h3>
-    <p>3D Tiles + bangunan + efek cuaca</p>
-
-    <div class="temp" id="tempValue">22°C</div>
-    <div class="condition" id="weatherCondition">Berawan - Kota Malang</div>
-
-    <div class="btn-group">
-      <button class="btn-warm" id="btnSunny">☀️ Panas</button>
-      <button class="btn-rain" id="btnRain">🌧️ Hujan</button>
-      <button class="btn-fog" id="btnFog">🌫️ Berkabut</button>
-      <button class="btn-main" id="btnBuildings">🏢 Bangunan ON/OFF</button>
-      <button class="btn-reset" id="btnReset">Reset Tampilan</button>
-    </div>
-
-    <div class="legend">
-      Asset utama: <b>Ion 4515285</b><br/>
-      Lokasi kamera awal: <b>Kota Malang</b>
-    </div>
-  </div>
-
   <div id="cesiumContainer"></div>
   <canvas id="weatherCanvas" class="weatherCanvas"></canvas>
 
+  <div class="panel">
+    <div class="panel-header">
+      <h2>Cesium Smart Viewer</h2>
+      <p>3D Tiles, bangunan, cuaca visual, dan navigasi lokasi berbasis id.</p>
+    </div>
+
+    <div class="panel-body">
+      <div class="weather-box">
+        <div class="left">
+          <div class="label">Suhu saat ini</div>
+          <div class="temp" id="tempValue">22°C</div>
+        </div>
+        <div class="right" id="weatherCondition">
+          Berawan<br />Kota Malang
+        </div>
+      </div>
+
+      <div class="section-title">Cari lokasi by id</div>
+      <div class="input-group">
+        <input type="text" id="locationIdInput" placeholder="Contoh: gedung-a" />
+        <button class="btn-primary" id="btnGoId">Go</button>
+      </div>
+
+      <div class="section-title">Kontrol cuaca & layer</div>
+      <div class="btn-grid">
+        <button class="btn-sunny" id="btnSunny">☀️ Panas</button>
+        <button class="btn-rain" id="btnRain">🌧️ Hujan</button>
+        <button class="btn-fog" id="btnFog">🌫️ Kabut</button>
+        <button class="btn-primary" id="btnBuildings">🏢 Bangunan</button>
+        <button class="btn-green" id="btnHome">📍 Lokasi Awal</button>
+        <button class="btn-dark" id="btnReset">↺ Reset</button>
+        <button class="btn-dark btn-wide" id="btnZoomTileset">🎯 Zoom ke Tileset</button>
+      </div>
+
+      <div class="status-box" id="statusBox">
+        Viewer siap. Menunggu perintah lokasi.
+        <div class="badge" id="activeModeBadge">Mode: Default</div>
+      </div>
+
+      <div class="bottom-info">
+        Asset utama: <strong>Ion 4515285</strong><br>
+        Default kota: <strong>Malang</strong><br>
+        Bisa dipanggil dengan URL: <strong>?id=gedung-a</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="floating-chip" id="floatingChip">
+    Target: <strong>Belum ada</strong>
+  </div>
+
   <script type="module">
+    // =========================
+    // KONFIGURASI
+    // =========================
     Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjOWRmOThmYS1iYjhiLTQ4YzgtOTAzMC1hYjE5OGZmZDExMGUiLCJpZCI6MjUyMDkzLCJpYXQiOjE3MzA0MTMxMzB9.oiJJytiAc-uPwL9DTfzg-iulsz8DixZOtWrbtO1K9rI";
 
+    const DEFAULT_LOCATION = {
+      id: "malang",
+      name: "Kota Malang",
+      lon: 112.6304,
+      lat: -7.9839,
+      height: 1800,
+      heading: 0,
+      pitch: -35,
+      roll: 0
+    };
+
+    // Ganti daftar ini sesuai data lokasi Anda
+    const LOCATION_INDEX = {
+      "malang": {
+        id: "malang",
+        name: "Kota Malang",
+        lon: 112.6304,
+        lat: -7.9839,
+        height: 1800,
+        heading: 0,
+        pitch: -35,
+        roll: 0,
+        description: "Titik default area Malang"
+      },
+      "gedung-a": {
+        id: "gedung-a",
+        name: "Gedung A",
+        lon: 112.6311,
+        lat: -7.9828,
+        height: 350,
+        heading: 15,
+        pitch: -28,
+        roll: 0,
+        description: "Contoh target gedung A"
+      },
+      "gedung-b": {
+        id: "gedung-b",
+        name: "Gedung B",
+        lon: 112.6295,
+        lat: -7.9844,
+        height: 320,
+        heading: 35,
+        pitch: -25,
+        roll: 0,
+        description: "Contoh target gedung B"
+      },
+      "kampus-1": {
+        id: "kampus-1",
+        name: "Kampus 1",
+        lon: 112.6278,
+        lat: -7.9819,
+        height: 500,
+        heading: 20,
+        pitch: -30,
+        roll: 0,
+        description: "Contoh target kampus"
+      }
+    };
+
+    // =========================
+    // ELEMENT UI
+    // =========================
+    const tempValueEl = document.getElementById("tempValue");
+    const weatherConditionEl = document.getElementById("weatherCondition");
+    const statusBoxEl = document.getElementById("statusBox");
+    const activeModeBadgeEl = document.getElementById("activeModeBadge");
+    const floatingChipEl = document.getElementById("floatingChip");
+    const locationIdInputEl = document.getElementById("locationIdInput");
+
+    // =========================
+    // VIEWER
+    // =========================
     const viewer = new Cesium.Viewer("cesiumContainer", {
       terrain: Cesium.Terrain.fromWorldTerrain(),
       animation: false,
       timeline: false,
       baseLayerPicker: true,
       geocoder: true,
-      homeButton: true,
+      homeButton: false,
       sceneModePicker: true,
       navigationHelpButton: true,
       infoBox: true,
@@ -171,23 +387,20 @@
     viewer.scene.skyAtmosphere.show = true;
     viewer.scene.fog.enabled = false;
 
-    // =========================
-    // Kamera awal ke Malang
-    // =========================
-    viewer.camera.flyTo({
-      destination: Cesium.Cartesian3.fromDegrees(112.6304, -7.9839, 2500),
-      duration: 2
-    });
+    const scene = viewer.scene;
+    let weatherMode = "default";
+    let buildingsVisible = true;
+    let focusMarkerEntity = null;
 
     // =========================
-    // 3D Tiles utama dari Ion
+    // TILESET
     // =========================
     const mainTileset = viewer.scene.primitives.add(
       await Cesium.Cesium3DTileset.fromIonAssetId(4515285)
     );
 
     // =========================
-    // Layer bangunan OSM
+    // OSM BUILDINGS
     // =========================
     const osmBuildings = viewer.scene.primitives.add(
       Cesium.createOsmBuildings({
@@ -196,39 +409,36 @@
             conditions: [
               ["${feature['building']} === 'hospital'", "color('red', 0.85)"],
               ["${feature['building']} === 'school'", "color('yellow', 0.85)"],
-              ["true", "color('white', 0.75)"]
+              ["${feature['building']} === 'university'", "color('cyan', 0.85)"],
+              ["true", "color('white', 0.72)"]
             ]
           }
         })
       })
     );
 
-    let buildingsVisible = true;
-
     // =========================
-    // Efek visual
+    // WEATHER CANVAS
     // =========================
-    const scene = viewer.scene;
     const canvas = document.getElementById("weatherCanvas");
     const ctx = canvas.getContext("2d");
+    let rainDrops = [];
 
     function resizeWeatherCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     }
+
     resizeWeatherCanvas();
     window.addEventListener("resize", resizeWeatherCanvas);
 
-    let weatherMode = "clear";
-    let rainDrops = [];
-
     function initRain() {
       rainDrops = [];
-      for (let i = 0; i < 250; i++) {
+      for (let i = 0; i < 260; i++) {
         rainDrops.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          len: 10 + Math.random() * 20,
+          len: 10 + Math.random() * 18,
           speed: 4 + Math.random() * 8
         });
       }
@@ -236,7 +446,7 @@
 
     function drawRain() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = "rgba(180,220,255,0.7)";
+      ctx.strokeStyle = "rgba(180,220,255,0.70)";
       ctx.lineWidth = 1.2;
       ctx.beginPath();
 
@@ -244,9 +454,9 @@
         ctx.moveTo(d.x, d.y);
         ctx.lineTo(d.x - 3, d.y + d.len);
         d.y += d.speed;
-        d.x -= 0.4;
+        d.x -= 0.35;
 
-        if (d.y > canvas.height) {
+        if (d.y > canvas.height + 10) {
           d.y = -20;
           d.x = Math.random() * canvas.width;
         }
@@ -254,6 +464,7 @@
           d.x = canvas.width + 20;
         }
       }
+
       ctx.stroke();
     }
 
@@ -261,6 +472,170 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
+    function animateWeather() {
+      if (weatherMode === "rain") {
+        drawRain();
+      } else {
+        clearWeatherCanvas();
+      }
+      requestAnimationFrame(animateWeather);
+    }
+    animateWeather();
+
+    // =========================
+    // UTILITIES
+    // =========================
+    function setStatus(message, modeText = null) {
+      statusBoxEl.innerHTML = `
+        ${message}
+        <div class="badge">${modeText || activeModeBadgeEl.textContent}</div>
+      `;
+    }
+
+    function updateModeBadge(text) {
+      activeModeBadgeEl.textContent = text;
+    }
+
+    function updateFloatingChip(text) {
+      floatingChipEl.innerHTML = `Target: <strong>${text}</strong>`;
+    }
+
+    function degToRad(v) {
+      return Cesium.Math.toRadians(v || 0);
+    }
+
+    function removeFocusMarker() {
+      if (focusMarkerEntity) {
+        viewer.entities.remove(focusMarkerEntity);
+        focusMarkerEntity = null;
+      }
+    }
+
+    function addFocusMarker(target) {
+      removeFocusMarker();
+
+      focusMarkerEntity = viewer.entities.add({
+        id: `focus-${target.id}`,
+        name: target.name,
+        position: Cesium.Cartesian3.fromDegrees(target.lon, target.lat, 0),
+        point: {
+          pixelSize: 14,
+          color: Cesium.Color.YELLOW,
+          outlineColor: Cesium.Color.BLACK,
+          outlineWidth: 2,
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
+        },
+        label: {
+          text: target.name,
+          font: "bold 14px sans-serif",
+          fillColor: Cesium.Color.WHITE,
+          outlineColor: Cesium.Color.BLACK,
+          outlineWidth: 3,
+          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+          pixelOffset: new Cesium.Cartesian2(0, -18),
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
+        },
+        description: `
+          <table style="width:100%;border-collapse:collapse">
+            <tr><td><b>ID</b></td><td>${target.id}</td></tr>
+            <tr><td><b>Nama</b></td><td>${target.name}</td></tr>
+            <tr><td><b>Longitude</b></td><td>${target.lon}</td></tr>
+            <tr><td><b>Latitude</b></td><td>${target.lat}</td></tr>
+            <tr><td><b>Keterangan</b></td><td>${target.description || "-"}</td></tr>
+          </table>
+        `
+      });
+    }
+
+    function flyToTarget(target, duration = 2.2) {
+      if (!target || typeof target.lon !== "number" || typeof target.lat !== "number") {
+        setStatus("Gagal menuju lokasi. Koordinat tidak valid.", "Mode: Error");
+        return;
+      }
+
+      addFocusMarker(target);
+
+      viewer.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(target.lon, target.lat, target.height || 500),
+        orientation: {
+          heading: degToRad(target.heading || 0),
+          pitch: degToRad(target.pitch ?? -30),
+          roll: degToRad(target.roll || 0)
+        },
+        duration
+      });
+
+      updateFloatingChip(`${target.name} (${target.id})`);
+      setStatus(`Berhasil menuju <b>${target.name}</b> dengan id <b>${target.id}</b>.`, "Mode: Navigasi ID");
+    }
+
+    function goToLocationById(id) {
+      const key = String(id || "").trim().toLowerCase();
+      if (!key) {
+        setStatus("ID lokasi kosong. Isi dulu id target.", "Mode: Input");
+        return;
+      }
+
+      const target = LOCATION_INDEX[key];
+      if (!target) {
+        setStatus(`ID <b>${key}</b> tidak ditemukan pada LOCATION_INDEX.`, "Mode: Tidak ditemukan");
+        updateFloatingChip("Tidak ditemukan");
+        return;
+      }
+
+      locationIdInputEl.value = key;
+      flyToTarget(target);
+    }
+
+    function goToRawCoordinates(lon, lat, height = 500) {
+      const target = {
+        id: "custom-coord",
+        name: "Koordinat Custom",
+        lon: Number(lon),
+        lat: Number(lat),
+        height: Number(height),
+        heading: 0,
+        pitch: -30,
+        roll: 0,
+        description: "Dipanggil dari parameter URL lon/lat"
+      };
+      flyToTarget(target);
+    }
+
+    function getUrlParams() {
+      return new URLSearchParams(window.location.search);
+    }
+
+    function bootstrapFromUrl() {
+      const params = getUrlParams();
+
+      const id = params.get("id");
+      const lon = params.get("lon");
+      const lat = params.get("lat");
+      const height = params.get("height");
+      const weather = params.get("weather");
+
+      if (weather === "sunny") setSunnyMode();
+      if (weather === "rain") setRainMode();
+      if (weather === "fog") setFogMode();
+
+      if (id) {
+        goToLocationById(id);
+        return;
+      }
+
+      if (lon && lat) {
+        goToRawCoordinates(lon, lat, height || 500);
+        return;
+      }
+
+      flyToTarget(DEFAULT_LOCATION, 1.8);
+    }
+
+    // =========================
+    // WEATHER MODES
+    // =========================
     function setSunnyMode() {
       weatherMode = "sunny";
       clearWeatherCanvas();
@@ -274,8 +649,10 @@
       scene.postProcessStages.bloom.uniforms.contrast = 128;
       scene.postProcessStages.bloom.uniforms.brightness = -0.15;
 
-      document.getElementById("weatherCondition").textContent = "Panas / Cerah - Kota Malang";
-      document.getElementById("tempValue").textContent = "31°C";
+      tempValueEl.textContent = "31°C";
+      weatherConditionEl.innerHTML = "Panas / Cerah<br>Kota Malang";
+      updateModeBadge("Mode: Panas");
+      setStatus("Efek cuaca cerah diaktifkan.", "Mode: Panas");
     }
 
     function setRainMode() {
@@ -290,8 +667,10 @@
       scene.skyAtmosphere.brightnessShift = -0.25;
       scene.postProcessStages.bloom.enabled = false;
 
-      document.getElementById("weatherCondition").textContent = "Hujan - Kota Malang";
-      document.getElementById("tempValue").textContent = "24°C";
+      tempValueEl.textContent = "24°C";
+      weatherConditionEl.innerHTML = "Hujan<br>Kota Malang";
+      updateModeBadge("Mode: Hujan");
+      setStatus("Efek hujan diaktifkan.", "Mode: Hujan");
     }
 
     function setFogMode() {
@@ -306,12 +685,14 @@
       scene.skyAtmosphere.brightnessShift = -0.35;
       scene.postProcessStages.bloom.enabled = false;
 
-      document.getElementById("weatherCondition").textContent = "Berkabut - Kota Malang";
-      document.getElementById("tempValue").textContent = "22°C";
+      tempValueEl.textContent = "22°C";
+      weatherConditionEl.innerHTML = "Berkabut<br>Kota Malang";
+      updateModeBadge("Mode: Kabut");
+      setStatus("Efek kabut diaktifkan.", "Mode: Kabut");
     }
 
     function resetView() {
-      weatherMode = "clear";
+      weatherMode = "default";
       clearWeatherCanvas();
 
       scene.fog.enabled = false;
@@ -320,37 +701,56 @@
       scene.skyAtmosphere.brightnessShift = 0.0;
       scene.postProcessStages.bloom.enabled = false;
 
-      document.getElementById("weatherCondition").textContent = "Berawan - Kota Malang";
-      document.getElementById("tempValue").textContent = "22°C";
-
-      viewer.flyTo(mainTileset);
+      tempValueEl.textContent = "22°C";
+      weatherConditionEl.innerHTML = "Berawan<br>Kota Malang";
+      updateModeBadge("Mode: Default");
+      setStatus("Tampilan di-reset ke mode default.", "Mode: Default");
     }
 
-    function animateWeather() {
-      if (weatherMode === "rain") {
-        drawRain();
-      } else {
-        clearWeatherCanvas();
-      }
-      requestAnimationFrame(animateWeather);
+    function toggleBuildings() {
+      buildingsVisible = !buildingsVisible;
+      osmBuildings.show = buildingsVisible;
+      setStatus(
+        `Layer bangunan sekarang <b>${buildingsVisible ? "aktif" : "nonaktif"}</b>.`,
+        "Mode: Layer"
+      );
     }
-    animateWeather();
 
     // =========================
-    // Interaksi tombol
+    // EVENTS
     // =========================
     document.getElementById("btnSunny").addEventListener("click", setSunnyMode);
     document.getElementById("btnRain").addEventListener("click", setRainMode);
     document.getElementById("btnFog").addEventListener("click", setFogMode);
-    document.getElementById("btnReset").addEventListener("click", resetView);
+    document.getElementById("btnBuildings").addEventListener("click", toggleBuildings);
 
-    document.getElementById("btnBuildings").addEventListener("click", () => {
-      buildingsVisible = !buildingsVisible;
-      osmBuildings.show = buildingsVisible;
+    document.getElementById("btnHome").addEventListener("click", () => {
+      goToLocationById(DEFAULT_LOCATION.id);
+    });
+
+    document.getElementById("btnReset").addEventListener("click", () => {
+      resetView();
+      goToLocationById(DEFAULT_LOCATION.id);
+    });
+
+    document.getElementById("btnZoomTileset").addEventListener("click", async () => {
+      await viewer.zoomTo(mainTileset);
+      setStatus("Kamera diarahkan ke keseluruhan tileset.", "Mode: Zoom Tileset");
+      updateFloatingChip("Tileset 4515285");
+    });
+
+    document.getElementById("btnGoId").addEventListener("click", () => {
+      goToLocationById(locationIdInputEl.value);
+    });
+
+    locationIdInputEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        goToLocationById(locationIdInputEl.value);
+      }
     });
 
     // =========================
-    // Klik bangunan / feature
+    // KLIK FEATURE / BANGUNAN
     // =========================
     const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 
@@ -364,6 +764,13 @@
           picked.getProperty("addr:street") ||
           "Bangunan";
 
+        const featureId =
+          picked.getProperty("id") ||
+          picked.getProperty("objectid") ||
+          picked.getProperty("gml_id") ||
+          picked.getProperty("fid") ||
+          "-";
+
         const height =
           picked.getProperty("height") ||
           picked.getProperty("cesium#estimatedHeight") ||
@@ -374,6 +781,7 @@
           description: `
             <table style="width:100%; border-collapse:collapse;">
               <tr><td><b>Nama</b></td><td>${name}</td></tr>
+              <tr><td><b>ID</b></td><td>${featureId}</td></tr>
               <tr><td><b>Tinggi</b></td><td>${height}</td></tr>
               <tr><td><b>Tipe</b></td><td>${picked.getProperty("building") || "-"}</td></tr>
               <tr><td><b>Alamat</b></td><td>${picked.getProperty("addr:street") || "-"}</td></tr>
@@ -382,6 +790,12 @@
         });
       }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+    // =========================
+    // START
+    // =========================
+    resetView();
+    bootstrapFromUrl();
   </script>
 </body>
 </html>
