@@ -59,7 +59,7 @@
       top: calc(16px + var(--safe-top));
       left: 16px;
       z-index: 100;
-      width: 350px;
+      width: 360px;
       max-width: calc(100vw - 32px);
       background: var(--bg-panel);
       color: var(--text-main);
@@ -71,7 +71,9 @@
       transition: all .28s ease;
     }
 
-    .panel.collapsed .panel-body { display: none; }
+    .panel.collapsed .panel-body {
+      display: none;
+    }
 
     .panel-header {
       display: flex;
@@ -82,7 +84,9 @@
       border-bottom: 1px solid rgba(255,255,255,0.08);
     }
 
-    .panel.collapsed .panel-header { border-bottom: none; }
+    .panel.collapsed .panel-header {
+      border-bottom: none;
+    }
 
     .panel-title h2 {
       margin: 0;
@@ -109,7 +113,9 @@
       flex-shrink: 0;
     }
 
-    .panel-body { padding: 14px; }
+    .panel-body {
+      padding: 14px;
+    }
 
     .weather-box {
       display: flex;
@@ -225,7 +231,15 @@
       max-width: calc(100vw - 32px);
     }
 
-    .chip strong { color: #93c5fd; }
+    .chip strong {
+      color: #93c5fd;
+    }
+
+    @media (max-width: 992px) {
+      .panel {
+        width: 320px;
+      }
+    }
 
     @media (max-width: 768px) {
       .panel {
@@ -243,6 +257,22 @@
         overflow-y: auto;
       }
 
+      .panel-title h2 {
+        font-size: 15px;
+      }
+
+      .panel-title p {
+        font-size: 11px;
+      }
+
+      .weather-left .temp {
+        font-size: 22px;
+      }
+
+      .weather-right {
+        font-size: 11px;
+      }
+
       .chip {
         top: calc(10px + var(--safe-top));
         left: 10px;
@@ -255,13 +285,32 @@
     }
 
     @media (max-width: 480px) {
-      .btn-grid { grid-template-columns: 1fr; }
-      .btn-wide { grid-column: span 1; }
+      .panel {
+        left: 8px;
+        right: 8px;
+        bottom: calc(8px + var(--safe-bottom));
+      }
+
+      .panel-body {
+        max-height: 48vh;
+      }
+
+      .btn-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .btn-wide {
+        grid-column: span 1;
+      }
+
       .weather-box {
         flex-direction: column;
         align-items: flex-start;
       }
-      .weather-right { text-align: left; }
+
+      .weather-right {
+        text-align: left;
+      }
     }
   </style>
 </head>
@@ -273,7 +322,7 @@
     <div class="panel-header">
       <div class="panel-title">
         <h2>Cesium Smart Viewer</h2>
-        <p>Fokus hanya ke tileset Ion asset 4515285.</p>
+        <p>Fokus asset 4515285 + layer tambahan OSM Buildings.</p>
       </div>
       <button class="toggle-btn" id="panelToggle" type="button">☰</button>
     </div>
@@ -294,9 +343,13 @@
         <button class="action-btn btn-sunny" id="btnSunny" type="button">☀️ Panas</button>
         <button class="action-btn btn-rain" id="btnRain" type="button">🌧️ Hujan</button>
         <button class="action-btn btn-fog" id="btnFog" type="button">🌫️ Kabut</button>
-        <button class="action-btn btn-primary" id="btnShowHideTileset" type="button">🏢 Show/Hide</button>
+
+        <button class="action-btn btn-primary" id="btnMainTileset" type="button">🧱 Asset Utama</button>
+        <button class="action-btn btn-success" id="btnBuildings" type="button">🏢 OSM Buildings</button>
+
         <button class="action-btn btn-success" id="btnHome" type="button">📍 Fokus Tileset</button>
         <button class="action-btn btn-dark" id="btnReset" type="button">↺ Reset</button>
+
         <button class="action-btn btn-dark btn-wide" id="btnZoomTileset" type="button">🎯 Zoom ke Tileset</button>
       </div>
 
@@ -307,8 +360,8 @@
 
       <div class="bottom-info">
         Asset utama: <strong>4515285</strong><br>
-        Token tetap digunakan seperti semula.<br>
-        Fokus viewer hanya ke tileset ini.
+        Layer tambahan: <strong>Cesium OSM Buildings</strong><br>
+        Klik bangunan untuk melihat atribut jika tersedia.
       </div>
     </div>
   </div>
@@ -359,8 +412,9 @@
 
     let weatherMode = "default";
     let mainTileset = null;
+    let buildingTileset = null;
     let tilesetVisible = true;
-    let DEFAULT_VIEW = null;
+    let osmBuildingsVisible = true;
 
     function setStatus(message, modeText = null) {
       statusBoxEl.innerHTML = `
@@ -381,7 +435,7 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
-    function focusToTileset(duration = 2.5) {
+    function focusToMainTileset(duration = 2.2) {
       if (!mainTileset) return;
 
       const sphere = mainTileset.boundingSphere;
@@ -398,6 +452,61 @@
 
       updateFloatingChip("Tileset 4515285");
       setStatus("Kamera difokuskan ke asset 4515285.", "Mode: Tileset");
+    }
+
+    const canvas = document.getElementById("weatherCanvas");
+    const ctx = canvas.getContext("2d");
+    let rainDrops = [];
+
+    function resizeWeatherCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    function initRain() {
+      rainDrops = [];
+      const dropCount = window.innerWidth <= 768 ? 120 : 260;
+      for (let i = 0; i < dropCount; i++) {
+        rainDrops.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          len: 10 + Math.random() * 18,
+          speed: 4 + Math.random() * 8
+        });
+      }
+    }
+
+    function drawRain() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = "rgba(180,220,255,0.70)";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+
+      for (const d of rainDrops) {
+        ctx.moveTo(d.x, d.y);
+        ctx.lineTo(d.x - 3, d.y + d.len);
+        d.y += d.speed;
+        d.x -= 0.35;
+
+        if (d.y > canvas.height + 10) {
+          d.y = -20;
+          d.x = Math.random() * canvas.width;
+        }
+        if (d.x < -20) {
+          d.x = canvas.width + 20;
+        }
+      }
+
+      ctx.stroke();
+    }
+
+    function animateWeather() {
+      if (weatherMode === "rain") {
+        drawRain();
+      } else {
+        clearWeatherCanvas();
+      }
+      requestAnimationFrame(animateWeather);
     }
 
     function setSunnyMode() {
@@ -464,6 +573,120 @@
       setStatus("Tampilan kembali ke default.", "Mode: Default");
     }
 
+    async function loadMainTileset() {
+      setStatus("Memuat asset Ion 4515285...", "Mode: Loading");
+
+      mainTileset = await Cesium.Cesium3DTileset.fromIonAssetId(4515285, {
+        maximumScreenSpaceError: 8,
+        skipLevelOfDetail: true,
+        preferLeaves: true,
+        dynamicScreenSpaceError: true
+      });
+
+      mainTileset.show = true;
+      viewer.scene.primitives.add(mainTileset);
+
+      if (mainTileset.tileFailed) {
+        mainTileset.tileFailed.addEventListener((error) => {
+          console.error("Main tileset tile failed:", error);
+        });
+      }
+
+      await viewer.zoomTo(mainTileset);
+      focusToMainTileset(0.5);
+
+      setStatus("Asset 4515285 berhasil dimuat.", "Mode: Ready");
+      updateFloatingChip("Tileset 4515285");
+    }
+
+    async function loadOsmBuildings() {
+      setStatus("Memuat OSM Buildings...", "Mode: Loading OSM");
+
+      buildingTileset = await Cesium.createOsmBuildingsAsync();
+
+      buildingTileset.style = new Cesium.Cesium3DTileStyle({
+        color: "color('white', 0.45)"
+      });
+
+      buildingTileset.show = true;
+      viewer.scene.primitives.add(buildingTileset);
+
+      if (buildingTileset.tileFailed) {
+        buildingTileset.tileFailed.addEventListener((error) => {
+          console.error("OSM Buildings tile failed:", error);
+        });
+      }
+
+      setStatus(
+        "OSM Buildings berhasil dimuat sebagai layer tambahan.",
+        "Mode: OSM Ready"
+      );
+    }
+
+    function formatPickedProperties(picked) {
+      const tryGet = (name) => {
+        try {
+          return picked.getProperty ? picked.getProperty(name) : undefined;
+        } catch (e) {
+          return undefined;
+        }
+      };
+
+      return {
+        name:
+          tryGet("name") ||
+          tryGet("building") ||
+          tryGet("addr:street") ||
+          tryGet("cesium#displayName") ||
+          "Objek 3D",
+        id:
+          tryGet("id") ||
+          tryGet("elementId") ||
+          tryGet("objectid") ||
+          tryGet("gml_id") ||
+          tryGet("fid") ||
+          "-",
+        building:
+          tryGet("building") ||
+          tryGet("elementType") ||
+          "-",
+        height:
+          tryGet("height") ||
+          tryGet("cesium#estimatedHeight") ||
+          "-",
+        street:
+          tryGet("addr:street") || "-",
+        levels:
+          tryGet("building:levels") || "-",
+        color:
+          tryGet("cesium#color") || "-"
+      };
+    }
+
+    const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+    handler.setInputAction(function (movement) {
+      const picked = viewer.scene.pick(movement.position);
+
+      if (!Cesium.defined(picked) || !picked.getProperty) return;
+
+      const props = formatPickedProperties(picked);
+
+      viewer.selectedEntity = new Cesium.Entity({
+        name: "Informasi Objek 3D",
+        description: `
+          <table style="width:100%; border-collapse:collapse;">
+            <tr><td><b>Nama</b></td><td>${props.name}</td></tr>
+            <tr><td><b>ID</b></td><td>${props.id}</td></tr>
+            <tr><td><b>Tipe</b></td><td>${props.building}</td></tr>
+            <tr><td><b>Tinggi</b></td><td>${props.height}</td></tr>
+            <tr><td><b>Levels</b></td><td>${props.levels}</td></tr>
+            <tr><td><b>Alamat</b></td><td>${props.street}</td></tr>
+            <tr><td><b>Color</b></td><td>${props.color}</td></tr>
+          </table>
+        `
+      });
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
     panelToggle.addEventListener("click", () => {
       controlPanel.classList.toggle("collapsed");
     });
@@ -472,142 +695,76 @@
     document.getElementById("btnRain").addEventListener("click", setRainMode);
     document.getElementById("btnFog").addEventListener("click", setFogMode);
 
-    document.getElementById("btnShowHideTileset").addEventListener("click", () => {
+    document.getElementById("btnMainTileset").addEventListener("click", () => {
       if (!mainTileset) return;
+
       tilesetVisible = !tilesetVisible;
       mainTileset.show = tilesetVisible;
 
       setStatus(
-        `Tileset 4515285 sekarang <b>${tilesetVisible ? "aktif" : "disembunyikan"}</b>.`,
-        "Mode: Layer"
+        `Asset 4515285 sekarang <b>${tilesetVisible ? "aktif" : "disembunyikan"}</b>.`,
+        "Mode: Layer Asset"
+      );
+    });
+
+    document.getElementById("btnBuildings").addEventListener("click", () => {
+      if (!buildingTileset) return;
+
+      osmBuildingsVisible = !osmBuildingsVisible;
+      buildingTileset.show = osmBuildingsVisible;
+
+      setStatus(
+        `OSM Buildings sekarang <b>${osmBuildingsVisible ? "aktif" : "nonaktif"}</b>.`,
+        "Mode: Layer OSM"
       );
     });
 
     document.getElementById("btnHome").addEventListener("click", () => {
-      focusToTileset();
+      focusToMainTileset();
     });
 
     document.getElementById("btnReset").addEventListener("click", () => {
       resetView();
-      focusToTileset();
+      focusToMainTileset();
     });
 
     document.getElementById("btnZoomTileset").addEventListener("click", async () => {
       if (!mainTileset) return;
+
       await viewer.zoomTo(mainTileset);
       updateFloatingChip("Tileset 4515285");
-      setStatus("Zoom ke keseluruhan tileset berhasil.", "Mode: Tileset");
+      setStatus("Kamera diarahkan ke keseluruhan tileset.", "Mode: Tileset");
     });
-
-    const canvas = document.getElementById("weatherCanvas");
-    const ctx = canvas.getContext("2d");
-    let rainDrops = [];
-
-    function resizeWeatherCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-
-    function initRain() {
-      rainDrops = [];
-      const dropCount = window.innerWidth <= 768 ? 120 : 260;
-      for (let i = 0; i < dropCount; i++) {
-        rainDrops.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          len: 10 + Math.random() * 18,
-          speed: 4 + Math.random() * 8
-        });
-      }
-    }
-
-    function drawRain() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = "rgba(180,220,255,0.70)";
-      ctx.lineWidth = 1.2;
-      ctx.beginPath();
-
-      for (const d of rainDrops) {
-        ctx.moveTo(d.x, d.y);
-        ctx.lineTo(d.x - 3, d.y + d.len);
-        d.y += d.speed;
-        d.x -= 0.35;
-
-        if (d.y > canvas.height + 10) {
-          d.y = -20;
-          d.x = Math.random() * canvas.width;
-        }
-        if (d.x < -20) {
-          d.x = canvas.width + 20;
-        }
-      }
-
-      ctx.stroke();
-    }
-
-    function animateWeather() {
-      if (weatherMode === "rain") {
-        drawRain();
-      } else {
-        clearWeatherCanvas();
-      }
-      requestAnimationFrame(animateWeather);
-    }
 
     resizeWeatherCanvas();
     window.addEventListener("resize", resizeWeatherCanvas);
 
-    async function loadMainTileset() {
+    async function initViewer() {
       try {
-        setStatus("Memuat asset Ion 4515285...", "Mode: Loading");
+        resetView();
+        animateWeather();
 
-        mainTileset = await Cesium.Cesium3DTileset.fromIonAssetId(4515285, {
-          maximumScreenSpaceError: 8,
-          skipLevelOfDetail: true,
-          preferLeaves: true,
-          dynamicScreenSpaceError: true
-        });
+        await loadMainTileset();
+        await loadOsmBuildings();
 
-        mainTileset.show = true;
+        setStatus(
+          "Viewer siap. Asset 4515285 dan OSM Buildings aktif.",
+          "Mode: Ready"
+        );
 
-        viewer.scene.primitives.add(mainTileset);
-
-        mainTileset.tileFailed.addEventListener((error) => {
-          console.error("Tile failed:", error);
-        });
-
-        const sphere = mainTileset.boundingSphere;
-        DEFAULT_VIEW = sphere;
-
-        await viewer.zoomTo(mainTileset);
-
-        viewer.camera.flyToBoundingSphere(sphere, {
-          duration: 0,
-          offset: new Cesium.HeadingPitchRange(
-            0.0,
-            Cesium.Math.toRadians(-28),
-            Math.max(sphere.radius * 2.2, 180)
-          )
-        });
-
-        setStatus("Asset 4515285 berhasil dimuat.", "Mode: Ready");
-        updateFloatingChip("Tileset 4515285");
+        if (isMobile) {
+          controlPanel.classList.add("collapsed");
+        }
       } catch (err) {
         console.error(err);
         setStatus(
-          "Gagal memuat tileset 4515285.<br>Cek token, asset access, atau posisi asset.",
+          "Gagal memuat viewer. Cek token, asset ion, atau koneksi internet.",
           "Mode: Error"
         );
       }
     }
 
-    resetView();
-    animateWeather();
-    await loadMainTileset();
-
-    if (isMobile) {
-      controlPanel.classList.add("collapsed");
-    }
+    initViewer();
   </script>
 </body>
 </html>
