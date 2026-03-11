@@ -22,6 +22,10 @@
       --sunny: #ff9f43;
       --rain: #4b7bec;
       --fog: #95a5a6;
+      --danger: #ef4444;
+      --purple: #8b5cf6;
+      --teal: #14b8a6;
+      --amber: #f59e0b;
       --dark: #1f2937;
       --shadow: 0 12px 30px rgba(0,0,0,0.30);
       --radius: 18px;
@@ -59,7 +63,7 @@
       top: calc(16px + var(--safe-top));
       left: 16px;
       z-index: 100;
-      width: 360px;
+      width: 390px;
       max-width: calc(100vw - 32px);
       background: var(--bg-panel);
       color: var(--text-main);
@@ -115,6 +119,8 @@
 
     .panel-body {
       padding: 14px;
+      max-height: 82vh;
+      overflow-y: auto;
     }
 
     .weather-box {
@@ -183,6 +189,10 @@
     .btn-sunny { background: var(--sunny); }
     .btn-rain { background: var(--rain); }
     .btn-fog { background: var(--fog); }
+    .btn-danger { background: var(--danger); }
+    .btn-purple { background: var(--purple); }
+    .btn-teal { background: var(--teal); }
+    .btn-amber { background: var(--amber); }
     .btn-dark { background: var(--dark); }
     .btn-wide { grid-column: span 2; }
 
@@ -235,9 +245,55 @@
       color: #93c5fd;
     }
 
+    .measure-box {
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .measure-result {
+      margin-top: 8px;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #e5eef9;
+      word-break: break-word;
+    }
+
+    .measure-list {
+      margin-top: 8px;
+      max-height: 180px;
+      overflow-y: auto;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.03);
+      padding: 8px;
+    }
+
+    .measure-item {
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.05);
+      font-size: 12px;
+      line-height: 1.45;
+      color: #dbe7f5;
+    }
+
+    .measure-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .helper-text {
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--text-soft);
+      line-height: 1.5;
+    }
+
     @media (max-width: 992px) {
       .panel {
-        width: 320px;
+        width: 340px;
       }
     }
 
@@ -322,7 +378,7 @@
     <div class="panel-header">
       <div class="panel-title">
         <h2>Cesium Smart Viewer</h2>
-        <p>Fokus asset 4515285 + layer tambahan OSM Buildings.</p>
+        <p>Fokus asset 4515285 + layer tambahan OSM Buildings + tools measure.</p>
       </div>
       <button class="toggle-btn" id="panelToggle" type="button">☰</button>
     </div>
@@ -353,6 +409,43 @@
         <button class="action-btn btn-dark btn-wide" id="btnZoomTileset" type="button">🎯 Zoom ke Tileset</button>
       </div>
 
+      <div class="section-title">Tools measure</div>
+      <div class="btn-grid">
+        <button class="action-btn btn-primary" id="btnMeasureDistance" type="button">📏 Distance</button>
+        <button class="action-btn btn-purple" id="btnMeasureArea" type="button">⬠ Area</button>
+
+        <button class="action-btn btn-teal" id="btnMeasureHeight" type="button">📐 Height</button>
+        <button class="action-btn btn-dark" id="btnMeasureOff" type="button">✖ Stop Measure</button>
+
+        <button class="action-btn btn-success" id="btnSaveMeasurement" type="button">💾 Save Active</button>
+        <button class="action-btn btn-danger" id="btnClearCurrent" type="button">🗑 Clear Current</button>
+
+        <button class="action-btn btn-danger" id="btnClearSaved" type="button">🧹 Clear Saved</button>
+        <button class="action-btn btn-amber" id="btnExportCSV" type="button">📤 Export CSV</button>
+
+        <button class="action-btn btn-amber btn-wide" id="btnExportJSON" type="button">📦 Export JSON</button>
+      </div>
+
+      <div class="measure-box">
+        <div><strong>Hasil aktif</strong></div>
+        <div class="measure-result" id="measureResult">
+          Belum ada pengukuran aktif.
+        </div>
+        <div class="helper-text">
+          Klik titik di peta. Klik kanan untuk menyelesaikan Distance/Area. Height selesai setelah 2 titik.
+        </div>
+      </div>
+
+      <div class="measure-box">
+        <div><strong>Data ukuran tersimpan sementara</strong></div>
+        <div class="measure-list" id="measureList">
+          <div class="measure-item">Belum ada data tersimpan.</div>
+        </div>
+        <div class="helper-text">
+          Data disimpan sementara di browser menggunakan localStorage sampai Anda hapus.
+        </div>
+      </div>
+
       <div class="status-box" id="statusBox">
         Viewer siap.
         <div class="badge" id="activeModeBadge">Mode: Default</div>
@@ -361,7 +454,8 @@
       <div class="bottom-info">
         Asset utama: <strong>4515285</strong><br>
         Layer tambahan: <strong>Cesium OSM Buildings</strong><br>
-        Klik bangunan untuk melihat atribut jika tersedia.
+        Klik bangunan untuk melihat atribut jika tersedia.<br>
+        Mode ukur mendukung <strong>distance</strong>, <strong>area</strong>, dan <strong>height</strong>.
       </div>
     </div>
   </div>
@@ -381,6 +475,8 @@
     const statusBoxEl = document.getElementById("statusBox");
     const activeModeBadgeEl = document.getElementById("activeModeBadge");
     const floatingChipEl = document.getElementById("floatingChip");
+    const measureResultEl = document.getElementById("measureResult");
+    const measureListEl = document.getElementById("measureList");
 
     const isMobile = window.innerWidth <= 768;
 
@@ -663,8 +759,543 @@
       };
     }
 
+    /* =========================================================
+       MEASUREMENT SYSTEM
+    ========================================================= */
+    const LOCAL_STORAGE_KEY = "cesium_measurements_saved_v1";
+
+    let measureMode = "none"; // none | distance | area | height
+    let activePoints = [];
+    let activeMeasureEntities = [];
+    let activeDynamicEntity = null;
+    let activeLabelEntity = null;
+    let savedMeasurements = [];
+    let measurementCounter = 1;
+    let currentMeasurementResult = null;
+
+    function loadSavedMeasurements() {
+      try {
+        const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (raw) {
+          savedMeasurements = JSON.parse(raw);
+          const maxId = savedMeasurements.reduce((m, item) => Math.max(m, item.id || 0), 0);
+          measurementCounter = maxId + 1;
+        }
+      } catch (e) {
+        console.warn("Gagal membaca localStorage measurement:", e);
+        savedMeasurements = [];
+      }
+      renderSavedMeasurements();
+    }
+
+    function persistSavedMeasurements() {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(savedMeasurements));
+      renderSavedMeasurements();
+    }
+
+    function renderSavedMeasurements() {
+      if (!savedMeasurements.length) {
+        measureListEl.innerHTML = `<div class="measure-item">Belum ada data tersimpan.</div>`;
+        return;
+      }
+
+      measureListEl.innerHTML = savedMeasurements.map(item => {
+        let body = "";
+        if (item.type === "distance") {
+          body = `Jarak total: <strong>${formatDistance(item.value)}</strong><br>Titik: ${item.points.length}`;
+        } else if (item.type === "area") {
+          body = `Luas: <strong>${formatArea(item.value)}</strong><br>Vertex: ${item.points.length}`;
+        } else if (item.type === "height") {
+          body = `Tinggi vertikal: <strong>${formatDistance(item.verticalHeight)}</strong><br>Jarak 3D: ${formatDistance(item.directDistance)}`;
+        }
+
+        return `
+          <div class="measure-item">
+            <strong>#${item.id} - ${item.type.toUpperCase()}</strong><br>
+            ${body}<br>
+            Waktu: ${new Date(item.createdAt).toLocaleString("id-ID")}
+          </div>
+        `;
+      }).join("");
+    }
+
+    function formatDistance(meters) {
+      if (!isFinite(meters)) return "-";
+      return meters >= 1000
+        ? `${(meters / 1000).toFixed(3)} km`
+        : `${meters.toFixed(3)} m`;
+    }
+
+    function formatArea(squareMeters) {
+      if (!isFinite(squareMeters)) return "-";
+      return squareMeters >= 1000000
+        ? `${(squareMeters / 1000000).toFixed(4)} km²`
+        : `${squareMeters.toFixed(3)} m²`;
+    }
+
+    function cartesianToLonLatHeight(cartesian) {
+      const carto = Cesium.Cartographic.fromCartesian(cartesian);
+      return {
+        lon: Cesium.Math.toDegrees(carto.longitude),
+        lat: Cesium.Math.toDegrees(carto.latitude),
+        height: carto.height
+      };
+    }
+
+    function pickPositionOnScene(position) {
+      if (!position) return null;
+
+      let cartesian = null;
+
+      if (scene.pickPositionSupported) {
+        cartesian = scene.pickPosition(position);
+      }
+
+      if (!Cesium.defined(cartesian)) {
+        const ray = viewer.camera.getPickRay(position);
+        if (ray) {
+          cartesian = scene.globe.pick(ray, scene);
+        }
+      }
+
+      return Cesium.defined(cartesian) ? cartesian : null;
+    }
+
+    function addPointMarker(cartesian, color = Cesium.Color.YELLOW) {
+      const entity = viewer.entities.add({
+        position: cartesian,
+        point: {
+          pixelSize: 10,
+          color,
+          outlineColor: Cesium.Color.BLACK,
+          outlineWidth: 2,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY
+        }
+      });
+      activeMeasureEntities.push(entity);
+      return entity;
+    }
+
+    function addStaticLine(positions, color = Cesium.Color.CYAN) {
+      const entity = viewer.entities.add({
+        polyline: {
+          positions,
+          width: 3,
+          material: color,
+          clampToGround: false
+        }
+      });
+      activeMeasureEntities.push(entity);
+      return entity;
+    }
+
+    function addDynamicLine(dynamicPositions, color = Cesium.Color.ORANGE) {
+      const entity = viewer.entities.add({
+        polyline: {
+          positions: new Cesium.CallbackProperty(() => dynamicPositions(), false),
+          width: 3,
+          material: color,
+          clampToGround: false
+        }
+      });
+      activeMeasureEntities.push(entity);
+      activeDynamicEntity = entity;
+      return entity;
+    }
+
+    function addDynamicPolygon(dynamicHierarchy) {
+      const entity = viewer.entities.add({
+        polygon: {
+          hierarchy: new Cesium.CallbackProperty(() => dynamicHierarchy(), false),
+          material: Cesium.Color.PURPLE.withAlpha(0.25),
+          outline: true,
+          outlineColor: Cesium.Color.WHITE
+        }
+      });
+      activeMeasureEntities.push(entity);
+      activeDynamicEntity = entity;
+      return entity;
+    }
+
+    function setActiveLabel(cartesian, text) {
+      if (activeLabelEntity) {
+        viewer.entities.remove(activeLabelEntity);
+        activeLabelEntity = null;
+      }
+
+      activeLabelEntity = viewer.entities.add({
+        position: cartesian,
+        label: {
+          text,
+          font: "14px sans-serif",
+          fillColor: Cesium.Color.WHITE,
+          outlineColor: Cesium.Color.BLACK,
+          outlineWidth: 3,
+          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+          pixelOffset: new Cesium.Cartesian2(0, -14),
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
+          showBackground: true,
+          backgroundColor: Cesium.Color.BLACK.withAlpha(0.55)
+        }
+      });
+      activeMeasureEntities.push(activeLabelEntity);
+    }
+
+    function clearActiveMeasurement() {
+      for (const entity of activeMeasureEntities) {
+        viewer.entities.remove(entity);
+      }
+      activeMeasureEntities = [];
+      activeDynamicEntity = null;
+      activeLabelEntity = null;
+      activePoints = [];
+      currentMeasurementResult = null;
+      measureResultEl.innerHTML = "Belum ada pengukuran aktif.";
+    }
+
+    function setMeasureMode(mode) {
+      clearActiveMeasurement();
+      measureMode = mode;
+
+      let label = "Mode: Default";
+      if (mode === "distance") label = "Mode: Measure Distance";
+      if (mode === "area") label = "Mode: Measure Area";
+      if (mode === "height") label = "Mode: Measure Height";
+      if (mode === "none") label = "Mode: Default";
+
+      updateModeBadge(label);
+
+      if (mode === "none") {
+        setStatus("Mode ukur dimatikan.", label);
+        return;
+      }
+
+      setStatus(`Mode ukur <b>${mode}</b> aktif. Klik titik pada model/terrain.`, label);
+      measureResultEl.innerHTML = `Mode aktif: <strong>${mode}</strong>. Mulai klik titik pengukuran.`;
+    }
+
+    function calculateDistance(positions) {
+      let total = 0;
+      for (let i = 1; i < positions.length; i++) {
+        total += Cesium.Cartesian3.distance(positions[i - 1], positions[i]);
+      }
+      return total;
+    }
+
+    function calculatePolygonArea(positions) {
+      if (positions.length < 3) return 0;
+
+      const center = Cesium.BoundingSphere.fromPoints(positions).center;
+      const enuTransform = Cesium.Transforms.eastNorthUpToFixedFrame(center);
+      const inverse = Cesium.Matrix4.inverse(enuTransform, new Cesium.Matrix4());
+
+      const local2D = positions.map(p => {
+        const local = Cesium.Matrix4.multiplyByPoint(inverse, p, new Cesium.Cartesian3());
+        return { x: local.x, y: local.y };
+      });
+
+      let area = 0;
+      for (let i = 0; i < local2D.length; i++) {
+        const j = (i + 1) % local2D.length;
+        area += local2D[i].x * local2D[j].y - local2D[j].x * local2D[i].y;
+      }
+      return Math.abs(area) * 0.5;
+    }
+
+    function finalizeDistanceMeasurement() {
+      if (activePoints.length < 2) {
+        setStatus("Distance membutuhkan minimal 2 titik.", "Mode: Measure Distance");
+        return;
+      }
+
+      const total = calculateDistance(activePoints);
+      const lastPoint = activePoints[activePoints.length - 1];
+      const coords = activePoints.map(cartesianToLonLatHeight);
+
+      currentMeasurementResult = {
+        type: "distance",
+        value: total,
+        points: coords
+      };
+
+      const text = `Distance: ${formatDistance(total)}`;
+      setActiveLabel(lastPoint, text);
+      measureResultEl.innerHTML = `
+        <strong>Distance selesai</strong><br>
+        Total jarak: <strong>${formatDistance(total)}</strong><br>
+        Jumlah titik: ${activePoints.length}
+      `;
+      setStatus(`Pengukuran distance selesai: <b>${formatDistance(total)}</b>.`, "Mode: Measure Distance");
+    }
+
+    function finalizeAreaMeasurement() {
+      if (activePoints.length < 3) {
+        setStatus("Area membutuhkan minimal 3 titik.", "Mode: Measure Area");
+        return;
+      }
+
+      const area = calculatePolygonArea(activePoints);
+      const coords = activePoints.map(cartesianToLonLatHeight);
+      const center = Cesium.BoundingSphere.fromPoints(activePoints).center;
+
+      currentMeasurementResult = {
+        type: "area",
+        value: area,
+        points: coords
+      };
+
+      const text = `Area: ${formatArea(area)}`;
+      setActiveLabel(center, text);
+
+      measureResultEl.innerHTML = `
+        <strong>Area selesai</strong><br>
+        Luas: <strong>${formatArea(area)}</strong><br>
+        Jumlah vertex: ${activePoints.length}
+      `;
+      setStatus(`Pengukuran area selesai: <b>${formatArea(area)}</b>.`, "Mode: Measure Area");
+    }
+
+    function finalizeHeightMeasurement() {
+      if (activePoints.length !== 2) return;
+
+      const p1 = activePoints[0];
+      const p2 = activePoints[1];
+      const c1 = Cesium.Cartographic.fromCartesian(p1);
+      const c2 = Cesium.Cartographic.fromCartesian(p2);
+
+      const verticalHeight = Math.abs(c2.height - c1.height);
+      const directDistance = Cesium.Cartesian3.distance(p1, p2);
+
+      const bottom = Cesium.Cartesian3.fromRadians(c1.longitude, c1.latitude, c1.height);
+      const topVertical = Cesium.Cartesian3.fromRadians(c1.longitude, c1.latitude, c2.height);
+
+      const coords = activePoints.map(cartesianToLonLatHeight);
+
+      addStaticLine([bottom, topVertical], Cesium.Color.LIME);
+      addStaticLine([p1, p2], Cesium.Color.ORANGE);
+
+      currentMeasurementResult = {
+        type: "height",
+        verticalHeight,
+        directDistance,
+        points: coords
+      };
+
+      setActiveLabel(topVertical, `Height: ${formatDistance(verticalHeight)}`);
+
+      measureResultEl.innerHTML = `
+        <strong>Height selesai</strong><br>
+        Tinggi vertikal: <strong>${formatDistance(verticalHeight)}</strong><br>
+        Jarak 3D langsung: <strong>${formatDistance(directDistance)}</strong>
+      `;
+      setStatus(`Pengukuran height selesai: <b>${formatDistance(verticalHeight)}</b>.`, "Mode: Measure Height");
+    }
+
+    function saveCurrentMeasurement() {
+      if (!currentMeasurementResult) {
+        setStatus("Belum ada hasil aktif yang bisa disimpan.", "Mode: Save");
+        return;
+      }
+
+      const newItem = {
+        id: measurementCounter++,
+        createdAt: new Date().toISOString(),
+        ...currentMeasurementResult
+      };
+
+      savedMeasurements.push(newItem);
+      persistSavedMeasurements();
+      setStatus(`Hasil ${newItem.type} berhasil disimpan sementara.`, "Mode: Saved");
+    }
+
+    function clearSavedMeasurements() {
+      savedMeasurements = [];
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+      renderSavedMeasurements();
+      setStatus("Semua data ukuran tersimpan telah dihapus.", "Mode: Clear Saved");
+    }
+
+    function exportMeasurementsJSON() {
+      if (!savedMeasurements.length) {
+        setStatus("Belum ada data tersimpan untuk export JSON.", "Mode: Export JSON");
+        return;
+      }
+
+      const blob = new Blob([JSON.stringify(savedMeasurements, null, 2)], {
+        type: "application/json"
+      });
+      downloadBlob(blob, "measurements.json");
+      setStatus("Export JSON berhasil.", "Mode: Export JSON");
+    }
+
+    function exportMeasurementsCSV() {
+      if (!savedMeasurements.length) {
+        setStatus("Belum ada data tersimpan untuk export CSV.", "Mode: Export CSV");
+        return;
+      }
+
+      const rows = [
+        [
+          "id",
+          "type",
+          "created_at",
+          "value_m_or_m2",
+          "vertical_height_m",
+          "direct_distance_m",
+          "point_count",
+          "points_json"
+        ]
+      ];
+
+      for (const item of savedMeasurements) {
+        rows.push([
+          item.id,
+          item.type,
+          item.createdAt,
+          item.type === "distance" || item.type === "area" ? (item.value ?? "") : "",
+          item.type === "height" ? (item.verticalHeight ?? "") : "",
+          item.type === "height" ? (item.directDistance ?? "") : "",
+          item.points?.length ?? 0,
+          JSON.stringify(item.points ?? [])
+        ]);
+      }
+
+      const csv = rows.map(row =>
+        row.map(cell => {
+          const val = String(cell ?? "");
+          return `"${val.replace(/"/g, '""')}"`;
+        }).join(",")
+      ).join("\n");
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      downloadBlob(blob, "measurements.csv");
+      setStatus("Export CSV berhasil.", "Mode: Export CSV");
+    }
+
+    function downloadBlob(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function handleMeasurementClick(position) {
+      const cartesian = pickPositionOnScene(position);
+      if (!cartesian) {
+        setStatus("Titik tidak terbaca. Coba klik pada permukaan model atau terrain.", "Mode: Measure");
+        return;
+      }
+
+      activePoints.push(cartesian);
+      addPointMarker(cartesian);
+
+      if (measureMode === "distance") {
+        if (activePoints.length >= 2) {
+          addStaticLine([activePoints[activePoints.length - 2], activePoints[activePoints.length - 1]], Cesium.Color.CYAN);
+          const total = calculateDistance(activePoints);
+          setActiveLabel(cartesian, formatDistance(total));
+          measureResultEl.innerHTML = `
+            <strong>Distance aktif</strong><br>
+            Jarak sementara: <strong>${formatDistance(total)}</strong><br>
+            Titik: ${activePoints.length}
+          `;
+        } else {
+          measureResultEl.innerHTML = `
+            <strong>Distance aktif</strong><br>
+            Titik pertama sudah dipilih.
+          `;
+        }
+      }
+
+      if (measureMode === "area") {
+        if (activePoints.length >= 3) {
+          const area = calculatePolygonArea(activePoints);
+          const center = Cesium.BoundingSphere.fromPoints(activePoints).center;
+          setActiveLabel(center, formatArea(area));
+          measureResultEl.innerHTML = `
+            <strong>Area aktif</strong><br>
+            Luas sementara: <strong>${formatArea(area)}</strong><br>
+            Vertex: ${activePoints.length}
+          `;
+        } else {
+          measureResultEl.innerHTML = `
+            <strong>Area aktif</strong><br>
+            Tambahkan minimal 3 titik untuk membentuk polygon.
+          `;
+        }
+      }
+
+      if (measureMode === "height") {
+        if (activePoints.length === 1) {
+          measureResultEl.innerHTML = `
+            <strong>Height aktif</strong><br>
+            Titik bawah sudah dipilih. Pilih titik atas.
+          `;
+        }
+        if (activePoints.length === 2) {
+          finalizeHeightMeasurement();
+        }
+      }
+    }
+
+    function handleMeasurementMouseMove(position) {
+      if (measureMode === "none" || activePoints.length === 0) return;
+
+      const cartesian = pickPositionOnScene(position);
+      if (!cartesian) return;
+
+      if (activeDynamicEntity) {
+        viewer.entities.remove(activeDynamicEntity);
+        activeMeasureEntities = activeMeasureEntities.filter(e => e !== activeDynamicEntity);
+        activeDynamicEntity = null;
+      }
+
+      if (measureMode === "distance") {
+        const dynamicPositions = () => [
+          activePoints[activePoints.length - 1],
+          cartesian
+        ];
+        addDynamicLine(dynamicPositions, Cesium.Color.ORANGE);
+      }
+
+      if (measureMode === "area" && activePoints.length >= 2) {
+        const dynamicHierarchy = () => {
+          return new Cesium.PolygonHierarchy([...activePoints, cartesian]);
+        };
+        addDynamicPolygon(dynamicHierarchy);
+
+        addDynamicLine(() => [
+          activePoints[activePoints.length - 1],
+          cartesian
+        ], Cesium.Color.YELLOW);
+      }
+
+      if (measureMode === "height" && activePoints.length === 1) {
+        addDynamicLine(() => [activePoints[0], cartesian], Cesium.Color.ORANGE);
+      }
+    }
+
+    function finishMeasurementByRightClick() {
+      if (measureMode === "distance") {
+        finalizeDistanceMeasurement();
+      } else if (measureMode === "area") {
+        finalizeAreaMeasurement();
+      }
+    }
+
     const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+
     handler.setInputAction(function (movement) {
+      if (measureMode !== "none") {
+        handleMeasurementClick(movement.position);
+        return;
+      }
+
       const picked = viewer.scene.pick(movement.position);
 
       if (!Cesium.defined(picked) || !picked.getProperty) return;
@@ -687,6 +1318,21 @@
       });
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
+    handler.setInputAction(function (movement) {
+      if (measureMode !== "none") {
+        handleMeasurementMouseMove(movement.endPosition);
+      }
+    }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+    handler.setInputAction(function () {
+      if (measureMode !== "none") {
+        finishMeasurementByRightClick();
+      }
+    }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+
+    /* =========================================================
+       UI EVENTS
+    ========================================================= */
     panelToggle.addEventListener("click", () => {
       controlPanel.classList.toggle("collapsed");
     });
@@ -736,6 +1382,43 @@
       setStatus("Kamera diarahkan ke keseluruhan tileset.", "Mode: Tileset");
     });
 
+    document.getElementById("btnMeasureDistance").addEventListener("click", () => {
+      setMeasureMode("distance");
+    });
+
+    document.getElementById("btnMeasureArea").addEventListener("click", () => {
+      setMeasureMode("area");
+    });
+
+    document.getElementById("btnMeasureHeight").addEventListener("click", () => {
+      setMeasureMode("height");
+    });
+
+    document.getElementById("btnMeasureOff").addEventListener("click", () => {
+      setMeasureMode("none");
+    });
+
+    document.getElementById("btnClearCurrent").addEventListener("click", () => {
+      clearActiveMeasurement();
+      setStatus("Pengukuran aktif dibersihkan.", "Mode: Clear Current");
+    });
+
+    document.getElementById("btnSaveMeasurement").addEventListener("click", () => {
+      saveCurrentMeasurement();
+    });
+
+    document.getElementById("btnClearSaved").addEventListener("click", () => {
+      clearSavedMeasurements();
+    });
+
+    document.getElementById("btnExportCSV").addEventListener("click", () => {
+      exportMeasurementsCSV();
+    });
+
+    document.getElementById("btnExportJSON").addEventListener("click", () => {
+      exportMeasurementsJSON();
+    });
+
     resizeWeatherCanvas();
     window.addEventListener("resize", resizeWeatherCanvas);
 
@@ -743,12 +1426,13 @@
       try {
         resetView();
         animateWeather();
+        loadSavedMeasurements();
 
         await loadMainTileset();
         await loadOsmBuildings();
 
         setStatus(
-          "Viewer siap. Asset 4515285 dan OSM Buildings aktif.",
+          "Viewer siap. Asset 4515285, OSM Buildings, dan tools measure aktif.",
           "Mode: Ready"
         );
 
